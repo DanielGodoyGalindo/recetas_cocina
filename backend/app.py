@@ -14,6 +14,7 @@ def get_db_connection():
         database="recipesapp"
     )
 
+# Routing
 @app.route('/api/recipes')
 def get_recipes():
     conn = get_db_connection()
@@ -36,7 +37,7 @@ def get_recipes():
 def get_recipe(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, title, description FROM recipes WHERE id = %s", (recipe_id,))
+    cursor.execute("SELECT id, title, description, imageUrl FROM recipes WHERE id = %s", (recipe_id,))
     recipe = cursor.fetchone()
 
     if not recipe:

@@ -24,7 +24,8 @@ cursor.execute("""
 CREATE TABLE recipes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255),
-    description TEXT
+    description TEXT,
+    imageUrl VARCHAR(255)
 )
 """)
 
@@ -41,15 +42,17 @@ CREATE TABLE ingredients (
 conn.commit()
 
 recipes = [
-    {"id": 1, "title": "Tortilla de patatas", "description": "Receta tradicional española", "ingredients": ["Huevos", "Patatas", "Aceite", "Sal"]},
-    {"id": 2, "title": "Paella", "description": "Arroz valenciano con mariscos", "ingredients": ["Arroz", "Langostinos", "Azafrán", "Pimiento"]}
+    {"title": "Tortilla de patatas", "description": "Receta tradicional española", "ingredients": ["Huevos", "Patatas", "Aceite", "Sal"], "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2025/02/tortilla-de-patatas-1.jpg"},
+    {"title": "Paella", "description": "Arroz valenciano con mariscos", "ingredients": ["Arroz", "Langostinos", "Azafrán", "Pimiento"], "imageUrl": "https://imag.bonviveur.com/paella-de-pollo.jpg"},
+    {"title": "Pizza margarita", "description": "Receta tradicional italiana", "ingredients": ["Harina", "Levadura", "Tomate", "Mozarella","Albahaca"], "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg"}
+
 ]
 
 # Insertar recetas e ingredientes
 for recipe in recipes:
     cursor.execute(
-        "INSERT INTO recipes (title, description) VALUES (%s, %s) ON DUPLICATE KEY UPDATE description=%s",
-        (recipe["title"], recipe["description"], recipe["description"])
+        "INSERT INTO recipes (title, description, imageUrl) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE description=%s",
+        (recipe["title"], recipe["description"], recipe["imageUrl"],recipe["description"])
     )
     recipe_id = cursor.lastrowid  # ID generado por AUTO_INCREMENT o UPDATE existente
 
