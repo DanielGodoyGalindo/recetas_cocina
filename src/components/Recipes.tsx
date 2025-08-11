@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+// Define data type (Recipe)
+interface Recipe {
+  id: number;
+  title: string;
+}
+
 function Recipes() {
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   useEffect(() => {
     fetch('http://localhost:5000/api/recipes')
       .then(res => res.json())
-      .then(data => setRecipes(data));
-  }, []);
+      .then((data: Recipe[]) => setRecipes(data));
+  }, [setRecipes]);
 
   return (
     <ul>

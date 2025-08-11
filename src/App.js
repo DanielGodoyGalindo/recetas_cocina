@@ -1,6 +1,6 @@
 import './App.css';
-import Recipes from './components/Recipes';
-import RecipeDetail from './components/RecipeDetail';
+import Recipes from './components/Recipes.tsx';
+import RecipeDetail from './components/RecipeDetail.tsx';
 import WelcomeMessage from './components/WelcomeMessage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 

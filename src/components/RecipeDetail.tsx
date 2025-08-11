@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+// Define data type (Recipe)
+interface Recipe {
+  id: number;
+  title: string;
+  description: string;
+  ingredients: string[];
+}
+
 function RecipeDetail() {
-  const { id } = useParams();
-  const [recipe, setRecipe] = useState(null);
+  const { id } = useParams<{ id: string }>();
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/recipes/${id}`)
@@ -22,8 +30,8 @@ function RecipeDetail() {
       <div>
         <h3>Ingredientes:</h3>
         <ul>
-          {recipe.ingredients.map((ing, idx) => (
-            <li key={idx}>{ing}</li>
+          {recipe.ingredients.map((ingredient, idx) => (
+            <li key={idx}>{ingredient}</li>
           ))}
         </ul>
       </div>
