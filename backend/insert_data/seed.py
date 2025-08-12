@@ -1,11 +1,7 @@
 import mysql.connector
 
 # Conexión al servidor MySQL (ajusta usuario y contraseña)
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="root"
-)
+conn = mysql.connector.connect(host="localhost", user="root", password="root")
 cursor = conn.cursor()
 
 # Crear base de datos
@@ -18,6 +14,8 @@ DROP TABLE IF EXISTS ingredients;
 cursor.execute("""
 DROP TABLE IF EXISTS recipes;
 """)
+
+cursor.execute("""DROP TABLE IF EXISTS users;""")
 
 # Crear tabla recipes
 cursor.execute("""
@@ -42,21 +40,40 @@ CREATE TABLE ingredients (
 conn.commit()
 
 recipes = [
-    {"title": "Tortilla de patatas", "description": "Receta tradicional española", "ingredients": ["Huevos", "Patatas", "Aceite", "Sal"], "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2025/02/tortilla-de-patatas-1.jpg"},
-    {"title": "Paella", "description": "Arroz valenciano con mariscos", "ingredients": ["Arroz", "Langostinos", "Azafrán", "Pimiento"], "imageUrl": "https://imag.bonviveur.com/paella-de-pollo.jpg"},
-    {"title": "Pizza margarita", "description": "Receta tradicional italiana", "ingredients": ["Harina", "Levadura", "Tomate", "Mozarella","Albahaca"], "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg"}
-
+    {
+        "title": "Tortilla de patatas",
+        "description": "Receta tradicional española",
+        "ingredients": ["Huevos", "Patatas", "Aceite", "Sal"],
+        "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2025/02/tortilla-de-patatas-1.jpg",
+    },
+    {
+        "title": "Paella",
+        "description": "Arroz valenciano con mariscos",
+        "ingredients": ["Arroz", "Langostinos", "Azafrán", "Pimiento"],
+        "imageUrl": "https://imag.bonviveur.com/paella-de-pollo.jpg",
+    },
+    {
+        "title": "Pizza margarita",
+        "description": "Receta tradicional italiana",
+        "ingredients": ["Harina", "Levadura", "Tomate", "Mozarella", "Albahaca"],
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg",
+    },
 ]
 
 # Insertar recetas e ingredientes
 for recipe in recipes:
     cursor.execute(
         "INSERT INTO recipes (title, description, imageUrl) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE description=%s",
-        (recipe["title"], recipe["description"], recipe["imageUrl"],recipe["description"])
+        (
+            recipe["title"],
+            recipe["description"],
+            recipe["imageUrl"],
+            recipe["description"],
+        ),
     )
     recipe_id = cursor.lastrowid  # ID generado por AUTO_INCREMENT o UPDATE existente
 
-    # Si la receta ya existía y se actualizó, lastrowid puede ser 0, 
+    # Si la receta ya existía y se actualizó, lastrowid puede ser 0,
     # entonces hay que obtener el id de la receta con un SELECT:
     if recipe_id == 0:
         cursor.execute("SELECT id FROM recipes WHERE title = %s", (recipe["title"],))
@@ -65,7 +82,7 @@ for recipe in recipes:
     for ingredient in recipe["ingredients"]:
         cursor.execute(
             "INSERT INTO ingredients (recipe_id, name) VALUES (%s, %s)",
-            (recipe_id, ingredient)
+            (recipe_id, ingredient),
         )
 
 conn.commit()
