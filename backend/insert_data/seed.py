@@ -1,10 +1,11 @@
 import mysql.connector
+import bcrypt
 
-# Conexión al servidor MySQL (ajusta usuario y contraseña)
+# mysql connection
 conn = mysql.connector.connect(host="localhost", user="root", password="root")
 cursor = conn.cursor()
 
-# Crear base de datos
+# create db
 cursor.execute("CREATE DATABASE IF NOT EXISTS recipesapp")
 cursor.execute("USE recipesapp")
 
@@ -17,7 +18,7 @@ DROP TABLE IF EXISTS recipes;
 
 cursor.execute("""DROP TABLE IF EXISTS users;""")
 
-# Crear tabla recipes
+# recipes table
 cursor.execute("""
 CREATE TABLE recipes (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -27,8 +28,7 @@ CREATE TABLE recipes (
 )
 """)
 
-# Crear tabla ingredients
-
+# ingredients table
 cursor.execute("""
 CREATE TABLE ingredients (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -38,6 +38,25 @@ CREATE TABLE ingredients (
 )
 """)
 conn.commit()
+
+# users table
+cursor.execute("""
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+)
+""")
+
+# @development
+# admin user
+username = "admin"
+password = "1234"
+hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+cursor.execute(
+    "INSERT INTO users (username, password) VALUES (%s, %s)",
+    (username, hashed_pw.decode("utf-8"))
+)
 
 recipes = [
     {

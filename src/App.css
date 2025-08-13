@@ -81,3 +81,20 @@ ul:hover {
   cursor: pointer;
   font-size: medium;
 }
+
+#login_form {
+  text-align: center;
+  div {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    input {
+    background: white;
+
+    }
+  }
+  button {
+    margin-top: 1rem;
+    background: white;
+  }
+}
