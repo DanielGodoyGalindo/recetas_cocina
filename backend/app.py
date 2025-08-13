@@ -9,6 +9,9 @@ from flask_jwt_extended import (
 import mysql.connector
 import bcrypt
 
+# Flask tutorial
+# https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage.html
+
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "clave-super-secreta"
 
