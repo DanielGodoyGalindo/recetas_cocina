@@ -65,7 +65,8 @@ ul:hover {
 }
 
 .image_sample {
-  max-width: 30vw;
+  width: 600px;
+  height: auto;
 }
 
 .main_details {
@@ -84,16 +85,39 @@ ul:hover {
 
 #login_form {
   text-align: center;
+
   div {
     display: flex;
     justify-content: center;
     gap: 1rem;
+
     input {
       background: white;
     }
   }
+
   button {
     margin-top: 1rem;
     background: white;
   }
+}
+
+#container_logout_button {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 20vw;
+  margin-bottom: 5vh;
+}
+
+#logout_button {
+  background: rgb(255, 0, 0);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+#logout_button:hover {
+  background: rgb(255, 82, 82);
 }

@@ -11,16 +11,19 @@ import { useState } from "react";
 function App() {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken(null);
+    localStorage.removeItem("user");
+    setUser(null);
   };
 
   return (
     <Router>
       <Routes>
-        <Route element={<Layout token={token} onLogout={handleLogout} />}>
+        <Route element={<Layout token={token} onLogout={handleLogout} user={user}/>}>
           <Route path="/" element={token ? [<WelcomeMessage />, <Recipes />] : <Navigate to="/login" />} />
           <Route path="/login" element={<Login onLogin={(token) => setToken(token)} />} />
           <Route path="/:id" element={<RecipeDetail />} />

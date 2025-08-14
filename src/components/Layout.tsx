@@ -1,15 +1,14 @@
 import { Outlet } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
-import { useEffect, useState } from "react";
 
 // Main structure of the app
-function Layout({token, onLogout}) {
+function Layout({ token, onLogout, user }) {
 
     return (
         <div>
             <header>
                 <h1 id='main_title'>Mi App de recetas</h1>
-                {token && <LogoutButton onLogout={onLogout} />}
+                {token && <LogoutButton onLogout={onLogout} user={user} />}
             </header>
             <Outlet /> {/* Renders a child/s defined in the routing configuration */}
         </div>

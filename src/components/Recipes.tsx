@@ -11,10 +11,23 @@ function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/recipes')
+    const token = localStorage.getItem("access_token");
+
+    fetch("http://localhost:5000/api/recipes", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
       .then(res => res.json())
-      .then((data: Recipe[]) => setRecipes(data));
-  }, [setRecipes]);
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRecipes(data);
+        } else {
+          console.error("Respuesta no es un array:", data);
+          setRecipes([]);
+        }
+      });
+  }, []);
 
   return (
     <ul>

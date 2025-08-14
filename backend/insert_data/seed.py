@@ -15,6 +15,9 @@ DROP TABLE IF EXISTS ingredients;
 cursor.execute("""
 DROP TABLE IF EXISTS recipes;
 """)
+cursor.execute("""
+DROP TABLE IF EXISTS users;
+""")
 
 cursor.execute("""DROP TABLE IF EXISTS users;""")
 
@@ -24,7 +27,8 @@ CREATE TABLE recipes (
     id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255),
     description TEXT,
-    imageUrl VARCHAR(255)
+    imageUrl VARCHAR(255),
+    created_by VARCHAR(255) DEFAULT 'admin'
 )
 """)
 
@@ -44,7 +48,8 @@ cursor.execute("""
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    role ENUM('user','admin') DEFAULT 'user'
 )
 """)
 
@@ -52,12 +57,14 @@ CREATE TABLE users (
 # admin user
 username = "admin"
 password = "1234"
+role = "admin"
 hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 cursor.execute(
-    "INSERT INTO users (username, password) VALUES (%s, %s)",
-    (username, hashed_pw.decode("utf-8"))
+    "INSERT INTO users (username, password, role) VALUES (%s, %s, %s)",
+    (username, hashed_pw.decode("utf-8"), role),
 )
 
+# seeds
 recipes = [
     {
         "title": "Tortilla de patatas",

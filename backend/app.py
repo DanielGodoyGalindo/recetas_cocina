@@ -47,13 +47,35 @@ def get_recipes():
     return jsonify(recipes)
 
 
+@jwt_required()
+def create_recipe():
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    imageUrl = data.get("imageUrl")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO recipes (title, description, imageUrl, created_by) VALUES (%s, %s, %s, %s)",
+        (title, description, imageUrl, current_user),
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"msg": "Receta creada con éxito"}), 201
+
+
 # Dinamic id routing
-@app.route("/api/recipes/<int:recipe_id>")
+# Obtener receta (GET público)
+@app.route("/api/recipes/<int:recipe_id>", methods=["GET"])
 def get_recipe(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
-        "SELECT id, title, description, imageUrl FROM recipes WHERE id = %s",
+        "SELECT id, title, description, imageUrl, created_by FROM recipes WHERE id = %s",
         (recipe_id,),
     )
     recipe = cursor.fetchone()
@@ -69,6 +91,69 @@ def get_recipe(recipe_id):
     cursor.close()
     conn.close()
     return jsonify(recipe)
+
+
+# Actualizar receta (PUT, requiere token)
+@app.route("/api/recipes/<int:recipe_id>", methods=["PUT"])
+@jwt_required()
+def update_recipe(recipe_id):
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    imageUrl = data.get("imageUrl")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT created_by FROM recipes WHERE id = %s", (recipe_id,))
+    recipe = cursor.fetchone()
+
+    if not recipe:
+        return jsonify({"msg": "Receta no encontrada"}), 404
+
+    if (
+        current_user["role"] != "admin"
+        and recipe["created_by"] != current_user["username"]
+    ):
+        return jsonify({"msg": "No tienes permiso para editar esta receta"}), 403
+
+    cursor.execute(
+        "UPDATE recipes SET title=%s, description=%s, imageUrl=%s WHERE id=%s",
+        (title, description, imageUrl, recipe_id),
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({"msg": "Receta actualizada con éxito"}), 200
+
+
+# Borrar receta (DELETE, requiere token)
+@app.route("/api/recipes/<int:recipe_id>", methods=["DELETE"])
+@jwt_required()
+def delete_recipe(recipe_id):
+    current_user = get_jwt_identity()
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT created_by FROM recipes WHERE id = %s", (recipe_id,))
+    recipe = cursor.fetchone()
+
+    if not recipe:
+        return jsonify({"msg": "Receta no encontrada"}), 404
+
+    if (
+        current_user["role"] != "admin"
+        and recipe["created_by"] != current_user["username"]
+    ):
+        return jsonify({"msg": "No tienes permiso para borrar esta receta"}), 403
+
+    cursor.execute("DELETE FROM recipes WHERE id = %s", (recipe_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"msg": "Receta eliminada con éxito"}), 200
 
 
 # Register
@@ -107,13 +192,13 @@ def login():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT password FROM users WHERE username=%s", (username,))
+    cursor.execute("SELECT password, role FROM users WHERE username=%s", (username,))
     result = cursor.fetchone()
     cursor.close()
     conn.close()
 
     if result and bcrypt.checkpw(password.encode("utf-8"), result[0].encode("utf-8")):
-        token = create_access_token(identity=username)
+        token = create_access_token(identity={"username": username, "role": result[1]})
         return jsonify({"access_token": token}), 200
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
