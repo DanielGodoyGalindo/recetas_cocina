@@ -10,6 +10,9 @@ import { useState } from "react";
 
 function App() {
 
+  // getting token and user
+  // token: to keep user session open
+  // user: to display user name
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 

@@ -107,6 +107,7 @@ ul:hover {
   justify-content: flex-end;
   margin-right: 20vw;
   margin-bottom: 5vh;
+  gap: 1.5rem;
 }
 
 #logout_button {
@@ -116,8 +117,15 @@ ul:hover {
   border: none;
   cursor: pointer;
   color: white;
+  font-size: 1rem;
 }
 
 #logout_button:hover {
   background: rgb(255, 82, 82);
+}
+
+#user_message {
+  display: inline-block;
+  height: 50px;
+  line-height: 50px;
 }
