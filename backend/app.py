@@ -9,32 +9,26 @@ from flask_jwt_extended import (
 import mysql.connector
 import bcrypt
 
-# Flask tutorial
-# https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage.html
-
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "clave-super-secreta"
 
 CORS(app)
 jwt = JWTManager(app)
 
-
-# Mysql connection
+# --- Conexion MySQL ---
 def get_db_connection():
     return mysql.connector.connect(
         host="localhost", user="root", password="root", database="recipesapp"
     )
 
-
 # Routing
-@app.route("/api/recipes")
+@app.route("/api/recipes", methods=["GET"])
 def get_recipes():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id, title, description FROM recipes")
     recipes = cursor.fetchall()
 
-    # get ingredientes for each recipe
     for recipe in recipes:
         cursor.execute(
             "SELECT name FROM ingredients WHERE recipe_id = %s", (recipe["id"],)
@@ -47,29 +41,7 @@ def get_recipes():
     return jsonify(recipes)
 
 
-@jwt_required()
-def create_recipe():
-    current_user = get_jwt_identity()
-    data = request.get_json()
-    title = data.get("title")
-    description = data.get("description")
-    imageUrl = data.get("imageUrl")
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO recipes (title, description, imageUrl, created_by) VALUES (%s, %s, %s, %s)",
-        (title, description, imageUrl, current_user),
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return jsonify({"msg": "Receta creada con éxito"}), 201
-
-
-# Dinamic id routing
-# Obtener receta (GET público)
 @app.route("/api/recipes/<int:recipe_id>", methods=["GET"])
 def get_recipe(recipe_id):
     conn = get_db_connection()
@@ -85,15 +57,44 @@ def get_recipe(recipe_id):
         conn.close()
         return jsonify({"error": "No se ha encontrado la receta!"}), 404
 
-    cursor.execute("SELECT name FROM ingredients WHERE recipe_id = %s", (recipe_id,))
+    cursor.execute(
+        "SELECT name FROM ingredients WHERE recipe_id = %s", (recipe_id,)
+    )
     ingredients = [row["name"] for row in cursor.fetchall()]
     recipe["ingredients"] = ingredients
+
     cursor.close()
     conn.close()
     return jsonify(recipe)
 
 
-# Actualizar receta (PUT, requiere token)
+# --- Rutas con JWT ---
+@app.route("/api/recipes", methods=["POST"])
+@jwt_required()
+def create_recipe():
+    print("REQUEST --> ", request.get_json())
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    imageUrl = data.get("imageUrl")
+
+    if not title or not description:
+        return jsonify({"msg": "Título y descripción son obligatorios"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO recipes (title, description, imageUrl, created_by) VALUES (%s, %s, %s, %s)",
+        (title, description, imageUrl, current_user),
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"msg": "Receta creada con éxito"}), 201
+
+
 @app.route("/api/recipes/<int:recipe_id>", methods=["PUT"])
 @jwt_required()
 def update_recipe(recipe_id):
@@ -102,20 +103,26 @@ def update_recipe(recipe_id):
     title = data.get("title")
     description = data.get("description")
     imageUrl = data.get("imageUrl")
+    print(data)
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
     cursor.execute("SELECT created_by FROM recipes WHERE id = %s", (recipe_id,))
     recipe = cursor.fetchone()
 
     if not recipe:
+        cursor.close()
+        conn.close()
         return jsonify({"msg": "Receta no encontrada"}), 404
 
-    if (
-        current_user["role"] != "admin"
-        and recipe["created_by"] != current_user["username"]
-    ):
+    # Solo admin o creador pueden editar
+    cursor.execute("SELECT role FROM users WHERE username=%s", (current_user,))
+    user_role = cursor.fetchone()
+    role = user_role[0] if user_role else None
+
+    if role != "admin" and recipe["created_by"] != current_user:
+        cursor.close()
+        conn.close()
         return jsonify({"msg": "No tienes permiso para editar esta receta"}), 403
 
     cursor.execute(
@@ -128,7 +135,6 @@ def update_recipe(recipe_id):
     return jsonify({"msg": "Receta actualizada con éxito"}), 200
 
 
-# Borrar receta (DELETE, requiere token)
 @app.route("/api/recipes/<int:recipe_id>", methods=["DELETE"])
 @jwt_required()
 def delete_recipe(recipe_id):
@@ -140,12 +146,17 @@ def delete_recipe(recipe_id):
     recipe = cursor.fetchone()
 
     if not recipe:
+        cursor.close()
+        conn.close()
         return jsonify({"msg": "Receta no encontrada"}), 404
 
-    if (
-        current_user["role"] != "admin"
-        and recipe["created_by"] != current_user["username"]
-    ):
+    cursor.execute("SELECT role FROM users WHERE username=%s", (current_user,))
+    user_role = cursor.fetchone()
+    role = user_role[0] if user_role else None
+
+    if role != "admin" and recipe["created_by"] != current_user:
+        cursor.close()
+        conn.close()
         return jsonify({"msg": "No tienes permiso para borrar esta receta"}), 403
 
     cursor.execute("DELETE FROM recipes WHERE id = %s", (recipe_id,))
@@ -156,7 +167,7 @@ def delete_recipe(recipe_id):
     return jsonify({"msg": "Receta eliminada con éxito"}), 200
 
 
-# Register
+# --- Registro y Login ---
 @app.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -183,7 +194,6 @@ def register():
     return jsonify({"msg": "Usuario registrado correctamente!"}), 201
 
 
-# Login
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -197,13 +207,22 @@ def login():
     cursor.close()
     conn.close()
 
-    if result and bcrypt.checkpw(password.encode("utf-8"), result[0].encode("utf-8")):
-        token = create_access_token(identity={"username": username, "role": result[1]})
-        return jsonify({"access_token": token}), 200
+    if not result:
+        return jsonify({"msg": "Credenciales inválidas"}), 401
+
+    db_password, db_role = result
+
+    if isinstance(db_password, str):
+        db_password = db_password.encode("utf-8")
+
+    if bcrypt.checkpw(password.encode("utf-8"), db_password):
+        token = create_access_token(identity=str(username), additional_claims={"role": db_role})
+        return jsonify({"access_token": token, "user": {"username": username, "role": db_role}}), 200
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
 
 
+# --- Endpoint protegido ---
 @app.route("/protected", methods=["GET"])
 @jwt_required()
 def protected():
