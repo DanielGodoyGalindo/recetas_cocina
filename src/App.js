@@ -47,16 +47,14 @@ function App() {
 
       console.log("Status HTTP:", res.status);
 
-      const data = await res.json(); // parseamos la respuesta
+      const data = await res.json();
       console.log("Respuesta del backend:", data);
 
       if (!res.ok) {
-        // Si hubo error, lanzamos con mensaje del backend si existe
         throw new Error(data.msg || "Error al crear receta");
       }
 
       alert("Receta creada correctamente!");
-      // Aquí puedes redirigir o actualizar la lista de recetas si quieres
     } catch (err) {
       console.error("Error capturado:", err);
       alert(`No se pudo crear la receta: ${err.message}`);
