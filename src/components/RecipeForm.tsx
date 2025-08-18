@@ -1,10 +1,11 @@
-import { Key, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Key, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import BackButton from './BackButton.tsx';
 
 function RecipeForm({ newRecipe, initialRecipe, user, onSave }) {
 
     const navigate = useNavigate();
+    const { id } = useParams(); // get id from params
 
     const [recipe, setRecipe] = useState(
         initialRecipe
@@ -13,6 +14,22 @@ function RecipeForm({ newRecipe, initialRecipe, user, onSave }) {
     );
 
     const [ingredient, setIngredient] = useState("");
+
+    // load recipe when editing
+    useEffect(() => {
+        if (!newRecipe && id) {
+            const fetchRecipe = async () => {
+                try {
+                    const res = await fetch(`http://localhost:5000/api/recipes/${id}`);
+                    const data = await res.json();
+                    setRecipe(data);
+                } catch (err) {
+                    console.error("Error cargando receta:", err);
+                }
+            };
+            fetchRecipe();
+        }
+    }, [newRecipe, id]);
 
     const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import BackButton from './BackButton.tsx';
+import EditRecipeButton from './EditRecipeButton.tsx';
 
 // Define data type (Recipe)
 interface Recipe {
@@ -36,7 +37,8 @@ function RecipeDetail() {
             ))}
           </ul>
         </div>
-        <img className="image_sample" src={recipe.imageUrl || "img/recipe_sample_img.jpg"} alt="Recipe image sample" />
+        <img className="image_sample" src={recipe.imageUrl || "img/recipe_sample_img.jpg"} alt="Recipe sample" />
+        <EditRecipeButton recipeId={recipe.id} />
       </div>
       <BackButton />
     </div>

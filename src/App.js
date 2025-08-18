@@ -10,7 +10,7 @@ import { useState } from "react";
 
 function App() {
 
-  // Estado de sesión
+  // State
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem("user");
@@ -43,12 +43,13 @@ function App() {
         body: JSON.stringify(recipeData),
       });
 
-      console.log(res.body);
-
-      console.log("Status HTTP:", res.status);
-
       const data = await res.json();
-      console.log("Respuesta del backend:", data);
+
+      if (res.status === 401) {
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        handleLogout();
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data.msg || "Error al crear receta");
@@ -58,6 +59,38 @@ function App() {
     } catch (err) {
       console.error("Error capturado:", err);
       alert(`No se pudo crear la receta: ${err.message}`);
+    }
+  };
+
+  const handleEditRecipe = async (recipeData, token) => {
+    console.log("PUT URL:", `http://localhost:5000/api/recipes/${recipeData.id}`);
+    console.log("Token:", token);
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(recipeData),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 401) {
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        handleLogout();
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.msg || "Error al actualizar receta");
+      }
+      alert("Receta actualizada correctamente!");
+    } catch (err) {
+      console.error("Error capturado:", err);
+      alert(`No se pudo actualizar la receta: ${err.message}`);
     }
   };
 
@@ -79,9 +112,12 @@ function App() {
           <Route path="/new_recipe" element={<RecipeForm
             newRecipe={true}
             user={user}
-            onSave={handleSaveRecipe}
+            onSave={handleSaveRecipe} />}
           />
-          }
+          <Route path="/edit_recipe/:id" element={<RecipeForm
+            newRecipe={false}
+            user={user}
+            onSave={(recipe) => handleEditRecipe(recipe, token)} />}
           />
         </Route>
       </Routes>

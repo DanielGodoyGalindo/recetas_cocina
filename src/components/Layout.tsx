@@ -8,6 +8,7 @@ function Layout({ token, onLogout, user }) {
         <div>
             <header>
                 <h1 id='main_title'>Mi App de recetas</h1>
+                {/* if token then render the component */}
                 {token && <LogoutButton onLogout={onLogout} user={user} />}
             </header>
             <Outlet /> {/* Renders a child/s defined in the routing configuration */}
