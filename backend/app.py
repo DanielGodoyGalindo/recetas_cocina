@@ -171,7 +171,7 @@ def delete_recipe(recipe_id):
 
     cursor.execute("SELECT role FROM users WHERE username=%s", (current_user,))
     user_role = cursor.fetchone()
-    role = user_role[0] if user_role else None
+    role = user_role.get("role") if user_role else None
 
     if role != "admin" and recipe["created_by"] != current_user:
         cursor.close()

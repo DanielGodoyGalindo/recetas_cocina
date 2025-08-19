@@ -94,6 +94,34 @@ function App() {
     }
   };
 
+  const handleDeleteRecipe = async (recipeData, token, user) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.status === 401) {
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        handleLogout();
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(data.msg || "Error al eliminar la receta");
+      }
+
+      alert("Receta eliminada con éxito ✅");
+    } catch (err) {
+      console.error("Error capturado:", err);
+      alert(`No se pudo eliminar la receta: ${err.message}`);
+    }
+  };
+
   return (
     <Router>
       <Routes>
@@ -108,7 +136,13 @@ function App() {
           }}
           />}
           />
-          <Route path="/:id" element={<RecipeDetail />} />
+          <Route path="/:id" element={<RecipeDetail
+            token={token}
+            user={user}
+            onDelete={handleDeleteRecipe}
+          />
+          }
+          />
           <Route path="/new_recipe" element={<RecipeForm
             newRecipe={true}
             user={user}

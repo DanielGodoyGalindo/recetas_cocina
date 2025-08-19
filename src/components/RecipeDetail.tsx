@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import BackButton from './BackButton.tsx';
 import EditRecipeButton from './EditRecipeButton.tsx';
+import DeleteRecipeButton from './DeleteRecipeButton.tsx';
 
-// Define data type (Recipe)
 interface Recipe {
   id: number;
   title: string;
@@ -12,9 +12,16 @@ interface Recipe {
   imageUrl: string;
 }
 
-function RecipeDetail() {
+type RecipeDetailProps = {
+  token: string | null;
+  user: any;
+  onDelete: (recipeData: { id: number }, token: string | null, user: any) => void;
+};
+
+function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
   const { id } = useParams<{ id: string }>();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/recipes/${id}`)
@@ -36,9 +43,23 @@ function RecipeDetail() {
               <li key={idx}>{ingredient}</li>
             ))}
           </ul>
+          <div className='recipe_buttons'>
+            <EditRecipeButton recipeId={recipe.id} />
+            <DeleteRecipeButton
+              recipeId={recipe.id}
+              token={token}
+              user={user}
+              onDelete={(data, tkn, usr) => {
+                onDelete(data, tkn, usr);
+                navigate("/"); // volver a la lista después de eliminar
+              }} />
+          </div>
         </div>
-        <img className="image_sample" src={recipe.imageUrl || "img/recipe_sample_img.jpg"} alt="Recipe sample" />
-        <EditRecipeButton recipeId={recipe.id} />
+        <img
+          className="image_sample"
+          src={recipe.imageUrl || "img/recipe_sample_img.jpg"}
+          alt="Recipe sample"
+        />
       </div>
       <BackButton />
     </div>

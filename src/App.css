@@ -1,6 +1,24 @@
-* {
+body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  background: url("../public/img/background.jpg");
+  margin: 0;
+  padding: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("../public/img/background.png");
+  filter: blur(6px);
+  transform: scale(1.05);
+  z-index: -1;
+  background-image: url("../public/img/background.png");
+  background-repeat: repeat;
+  background-size: contain;
+  background-attachment: fixed;
 }
 
 h1,
@@ -128,4 +146,10 @@ ul:hover {
   display: inline-block;
   height: 50px;
   line-height: 50px;
+}
+
+.recipe_buttons{
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
 }
