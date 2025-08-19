@@ -14,7 +14,7 @@ interface Recipe {
 
 type RecipeDetailProps = {
   token: string | null;
-  user: any;
+  user: object;
   onDelete: (recipeData: { id: number }, token: string | null, user: any) => void;
 };
 
@@ -51,7 +51,7 @@ function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
               user={user}
               onDelete={(data, tkn, usr) => {
                 onDelete(data, tkn, usr);
-                navigate("/"); // volver a la lista después de eliminar
+                navigate("/");
               }} />
           </div>
         </div>

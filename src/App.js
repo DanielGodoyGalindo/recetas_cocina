@@ -94,7 +94,7 @@ function App() {
     }
   };
 
-  const handleDeleteRecipe = async (recipeData, token, user) => {
+  const handleDeleteRecipe = async (recipeData, token) => {
     try {
       const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
         method: "DELETE",

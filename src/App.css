@@ -33,6 +33,7 @@ ul {
   list-style-type: none;
   background: none;
   background-color: rgb(255, 254, 239);
+  background-color: lavenderblush;
   width: 300px;
   margin: 40px auto;
   padding: 1.5rem 2rem;
@@ -152,4 +153,14 @@ ul:hover {
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+#new_recipe_form {
+  text-align: center;
+}
+
+#recipe_form_buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }

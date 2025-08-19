@@ -106,10 +106,11 @@ function RecipeForm({ newRecipe, initialRecipe, user, onSave }) {
                         </li>
                     ))}
                 </ul>
-
-                <button type="submit">Guardar receta</button>
+                <div id="recipe_form_buttons">
+                    <button type="submit" className="back_button">Guardar receta</button>
+                    <BackButton />
+                </div>
             </form>
-            <BackButton />
         </div>
     );
 }
