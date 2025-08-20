@@ -10,11 +10,17 @@ interface Recipe {
   description: string;
   ingredients: string[];
   imageUrl: string;
+  created_by: string;
+}
+
+interface User {
+  id: number;
+  username: string;
 }
 
 type RecipeDetailProps = {
   token: string | null;
-  user: object;
+  user: User | null;
   onDelete: (recipeData: { id: number }, token: string | null, user: any) => void;
 };
 
@@ -44,15 +50,20 @@ function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
             ))}
           </ul>
           <div className='recipe_buttons'>
-            <EditRecipeButton recipeId={recipe.id} />
-            <DeleteRecipeButton
-              recipeId={recipe.id}
-              token={token}
-              user={user}
-              onDelete={(data, tkn, usr) => {
-                onDelete(data, tkn, usr);
-                navigate("/");
-              }} />
+            {token && user && recipe.created_by === user.username && (
+              <>
+                <EditRecipeButton recipeId={recipe.id} />
+                <DeleteRecipeButton
+                  recipeId={recipe.id}
+                  token={token}
+                  user={user}
+                  onDelete={(data, tkn, usr) => {
+                    onDelete(data, tkn, usr);
+                    navigate("/");
+                  }}
+                />
+              </>
+            )}
           </div>
         </div>
         <img

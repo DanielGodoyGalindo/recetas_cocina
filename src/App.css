@@ -96,10 +96,11 @@ ul:hover {
 
 .back_button {
   background: white;
-  padding: 8px 16px;
+  padding: 12px 18px;
   border-radius: 5px;
   cursor: pointer;
   font-size: medium;
+  font-weight: bold;
 }
 
 #login_form {
@@ -118,6 +119,7 @@ ul:hover {
   button {
     margin-top: 1rem;
     background: white;
+    padding: 0.5rem;
   }
 }
 
@@ -140,7 +142,7 @@ ul:hover {
 }
 
 #logout_button:hover {
-  background: rgb(255, 82, 82);
+  background: rgb(198, 100, 100);
 }
 
 #user_message {
@@ -149,10 +151,18 @@ ul:hover {
   line-height: 50px;
 }
 
-.recipe_buttons{
+.recipe_buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
+
+  button {
+    background: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: medium;
+  }
 }
 
 #new_recipe_form {
@@ -163,4 +173,18 @@ ul:hover {
   display: flex;
   justify-content: center;
   gap: 1rem;
+}
+
+#new_recipe_button {
+  background: rgb(73, 151, 33);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+}
+
+#new_recipe_button:hover {
+  background: rgb(83, 165, 42);
 }

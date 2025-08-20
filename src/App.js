@@ -3,6 +3,8 @@ import Recipes from './components/Recipes.tsx';
 import RecipeDetail from './components/RecipeDetail.tsx';
 import WelcomeMessage from './components/WelcomeMessage';
 import RecipeForm from "./components/RecipeForm.tsx";
+import EditRecipeWrapper from './components/EditRecipeWrapper.tsx';
+import CreateUserForm from './components/CreateUserForm.tsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout.tsx';
 import Login from "./components/Login";
@@ -126,33 +128,18 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout token={token} onLogout={handleLogout} user={user} />}>
-          <Route path="/" element={token ? [<WelcomeMessage />, <Recipes />] : <Navigate to="/login" />}
-          />
+          <Route path="/" element={token ? [<WelcomeMessage />, <Recipes />] : <Navigate to="/login" />} />
           <Route path="/login" element={<Login onLogin={(token, user) => {
             setToken(token);
             setUser(user);
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
           }}
-          />}
-          />
-          <Route path="/:id" element={<RecipeDetail
-            token={token}
-            user={user}
-            onDelete={handleDeleteRecipe}
-          />
-          }
-          />
-          <Route path="/new_recipe" element={<RecipeForm
-            newRecipe={true}
-            user={user}
-            onSave={handleSaveRecipe} />}
-          />
-          <Route path="/edit_recipe/:id" element={<RecipeForm
-            newRecipe={false}
-            user={user}
-            onSave={(recipe) => handleEditRecipe(recipe, token)} />}
-          />
+          />} />
+          <Route path="/:id" element={<RecipeDetail token={token} user={user} onDelete={handleDeleteRecipe} />} />
+          <Route path="/new_recipe" element={<RecipeForm newRecipe={true} user={user} onSave={handleSaveRecipe} />} />
+          <Route path="/edit_recipe/:id" element={<EditRecipeWrapper user={user} token={token} onSave={handleEditRecipe} />} />
+          <Route path="/create-user" element={<CreateUserForm />} />
         </Route>
       </Routes>
     </Router>

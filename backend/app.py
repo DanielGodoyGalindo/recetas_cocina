@@ -67,7 +67,6 @@ def get_recipe(recipe_id):
     return jsonify(recipe)
 
 
-# Routing
 @app.route("/api/recipes", methods=["POST"])
 @jwt_required()
 def create_recipe():
@@ -250,6 +249,36 @@ def login():
 def protected():
     current_user = get_jwt_identity()
     return jsonify({"msg": f"Hola {current_user}, estás autenticado!"})
+
+
+@app.route("/create-user", methods=["POST"])
+def create_user():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (%s, %s);",
+            (username, hashed_password.decode("utf-8")),
+        )
+        conn.commit()  # 🔹 MUY IMPORTANTE
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+        
+    return jsonify({"msg": "Usuario creado correctamente!"})
 
 
 if __name__ == "__main__":
