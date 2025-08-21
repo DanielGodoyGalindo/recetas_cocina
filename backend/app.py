@@ -8,6 +8,7 @@ from flask_jwt_extended import (
 )
 import mysql.connector
 import bcrypt
+import json
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "clave-super-secreta"
@@ -28,15 +29,17 @@ def get_db_connection():
 def get_recipes():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, title, description FROM recipes")
+    cursor.execute(
+        "SELECT id, title, description, ingredients, imageUrl, created_by FROM recipes"
+    )
     recipes = cursor.fetchall()
 
+    # Convertir JSON de ingredients a dict
     for recipe in recipes:
-        cursor.execute(
-            "SELECT name FROM ingredients WHERE recipe_id = %s", (recipe["id"],)
-        )
-        ingredients = [row["name"] for row in cursor.fetchall()]
-        recipe["ingredients"] = ingredients
+        if recipe["ingredients"]:
+            recipe["ingredients"] = json.loads(recipe["ingredients"])
+        else:
+            recipe["ingredients"] = {}
 
     cursor.close()
     conn.close()
@@ -48,7 +51,7 @@ def get_recipe(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
-        "SELECT id, title, description, imageUrl, created_by FROM recipes WHERE id = %s",
+        "SELECT id, title, description, ingredients, imageUrl, created_by FROM recipes WHERE id = %s",
         (recipe_id,),
     )
     recipe = cursor.fetchone()
@@ -58,9 +61,10 @@ def get_recipe(recipe_id):
         conn.close()
         return jsonify({"error": "No se ha encontrado la receta!"}), 404
 
-    cursor.execute("SELECT name FROM ingredients WHERE recipe_id = %s", (recipe_id,))
-    ingredients = [row["name"] for row in cursor.fetchall()]
-    recipe["ingredients"] = ingredients
+    if recipe["ingredients"]:
+        recipe["ingredients"] = json.loads(recipe["ingredients"])
+    else:
+        recipe["ingredients"] = {}
 
     cursor.close()
     conn.close()
@@ -70,13 +74,12 @@ def get_recipe(recipe_id):
 @app.route("/api/recipes", methods=["POST"])
 @jwt_required()
 def create_recipe():
-    print("REQUEST --> ", request.get_json())
     current_user = get_jwt_identity()
     data = request.get_json()
     title = data.get("title")
     description = data.get("description")
     imageUrl = data.get("imageUrl")
-    ingredients = data.get("ingredients", [])
+    ingredients = data.get("ingredients", {})
 
     if not title or not description or not ingredients:
         return jsonify(
@@ -85,18 +88,10 @@ def create_recipe():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    # insert recipe
     cursor.execute(
-        "INSERT INTO recipes (title, description, imageUrl, created_by) VALUES (%s, %s, %s, %s)",
-        (title, description, imageUrl, current_user),
+        "INSERT INTO recipes (title, description, ingredients, imageUrl, created_by) VALUES (%s, %s, %s, %s, %s)",
+        (title, description, json.dumps(ingredients), imageUrl, current_user),
     )
-    # insert ingredients from recipe
-    recipe_id = cursor.lastrowid
-    for ing in ingredients:
-        cursor.execute(
-            "INSERT INTO ingredients (name, recipe_id) VALUES (%s, %s)",
-            (ing, recipe_id),
-        )
     conn.commit()
     cursor.close()
     conn.close()
@@ -112,7 +107,7 @@ def update_recipe(recipe_id):
     title = data.get("title")
     description = data.get("description")
     imageUrl = data.get("imageUrl")
-    ingredients = data.get("ingredients", [])
+    ingredients = data.get("ingredients", {})
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -124,7 +119,6 @@ def update_recipe(recipe_id):
         conn.close()
         return jsonify({"msg": "Receta no encontrada"}), 404
 
-    # Only admin or creator can edit
     cursor.execute("SELECT role FROM users WHERE username=%s", (current_user,))
     user_role = cursor.fetchone()
     role = user_role.get("role") if user_role else None
@@ -134,18 +128,10 @@ def update_recipe(recipe_id):
         conn.close()
         return jsonify({"msg": "No tienes permiso para editar esta receta"}), 403
 
-    # update recipe
     cursor.execute(
-        "UPDATE recipes SET title=%s, description=%s, imageUrl=%s WHERE id=%s",
-        (title, description, imageUrl, recipe_id),
+        "UPDATE recipes SET title=%s, description=%s, ingredients=%s, imageUrl=%s WHERE id=%s",
+        (title, description, json.dumps(ingredients), imageUrl, recipe_id),
     )
-    # delete current ingredients then insert new ingredients
-    cursor.execute("DELETE FROM ingredients WHERE recipe_id=%s", (recipe_id,))
-    for ing in ingredients:
-        cursor.execute(
-            "INSERT INTO ingredients (name, recipe_id) VALUES (%s, %s)",
-            (ing, recipe_id),
-        )
     conn.commit()
     cursor.close()
     conn.close()
@@ -270,14 +256,14 @@ def create_user():
             "INSERT INTO users (username, password) VALUES (%s, %s);",
             (username, hashed_password.decode("utf-8")),
         )
-        conn.commit()  # 🔹 MUY IMPORTANTE
+        conn.commit()
     except Exception as e:
         conn.rollback()
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
-        
+
     return jsonify({"msg": "Usuario creado correctamente!"})
 
 

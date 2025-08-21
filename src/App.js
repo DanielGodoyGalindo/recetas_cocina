@@ -31,7 +31,7 @@ function App() {
     setUser(null);
   };
 
-  // send new recipe
+  // Crear receta
   const handleSaveRecipe = async (recipeData) => {
     console.log("Datos de la receta a enviar:", recipeData);
 
@@ -42,7 +42,7 @@ function App() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData),
+        body: JSON.stringify(recipeData), // ← ingredientes ya en JSON
       });
 
       const data = await res.json();
@@ -64,7 +64,8 @@ function App() {
     }
   };
 
-  const handleEditRecipe = async (recipeData, token) => {
+  // Editar receta
+  const handleEditRecipe = async (recipeData) => {
     console.log("PUT URL:", `http://localhost:5000/api/recipes/${recipeData.id}`);
     console.log("Token:", token);
 
@@ -75,7 +76,7 @@ function App() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData),
+        body: JSON.stringify(recipeData), // ← ingredientes ya en JSON
       });
 
       const data = await res.json();
@@ -96,7 +97,8 @@ function App() {
     }
   };
 
-  const handleDeleteRecipe = async (recipeData, token) => {
+  // Eliminar receta
+  const handleDeleteRecipe = async (recipeData) => {
     try {
       const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
         method: "DELETE",

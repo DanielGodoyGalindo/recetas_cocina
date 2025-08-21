@@ -9,21 +9,27 @@ function Login({ onLogin }) {
     const handleLogin = async (e) => {
         e.preventDefault();
 
-        const res = await fetch("http://localhost:5000/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
+        try {
+            const res = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
 
-        const data = await res.json();
-        if (res.ok) {
-            const loggedUser = { username };
-            localStorage.setItem("token", data.access_token);
-            localStorage.setItem("user", JSON.stringify(loggedUser));
-            if (onLogin) onLogin(data.access_token, loggedUser); // call parent component
-            navigate("/");
-        } else {
-            alert(data.msg);
+            const data = await res.json();
+
+            if (res.ok) {
+                const loggedUser = { username, role: data.user.role };
+                localStorage.setItem("token", data.access_token);
+                localStorage.setItem("user", JSON.stringify(loggedUser));
+                if (onLogin) onLogin(data.access_token, loggedUser);
+                navigate("/");
+            } else {
+                alert(data.msg || "Error al iniciar sesión");
+            }
+        } catch (error) {
+            console.error("Error de conexión con backend:", error);
+            alert("No se pudo conectar con el servidor. Revisa que Flask esté corriendo en http://localhost:5000");
         }
     };
 

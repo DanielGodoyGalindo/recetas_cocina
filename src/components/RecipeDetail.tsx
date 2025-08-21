@@ -1,78 +1,84 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BackButton from './BackButton.tsx';
-import EditRecipeButton from './EditRecipeButton.tsx';
-import DeleteRecipeButton from './DeleteRecipeButton.tsx';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import BackButton from "./BackButton.tsx";
+import { Recipe, User } from "../Types"; // centraliza en types.ts
 
-interface Recipe {
-  id: number;
-  title: string;
-  description: string;
-  ingredients: string[];
-  imageUrl: string;
-  created_by: string;
-}
-
-interface User {
-  id: number;
-  username: string;
-}
-
-type RecipeDetailProps = {
+interface RecipeDetailProps {
   token: string | null;
   user: User | null;
-  onDelete: (recipeData: { id: number }, token: string | null, user: any) => void;
-};
+  onDelete: (recipe: Recipe, token: string | null) => Promise<void>;
+}
 
 function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
   const { id } = useParams<{ id: string }>();
-  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const navigate = useNavigate();
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/recipes/${id}`)
-      .then(res => res.json())
-      .then(data => setRecipe(data));
+    if (!id) return;
+
+    const fetchRecipe = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/recipes/${id}`);
+        const data = await res.json();
+
+        setRecipe({
+          ...data,
+          ingredients: data.ingredients || {},
+        });
+      } catch (err) {
+        console.error("Error cargando receta:", err);
+      }
+    };
+
+    fetchRecipe();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (recipe) {
+      await onDelete(recipe, token);
+      navigate("/");
+    }
+  };
 
   if (!recipe) return <p>Cargando receta...</p>;
 
   return (
-    <div id='recipeDetail'>
-      <div className='main_details'>
-        <div>
-          <h2>{recipe.title}</h2>
-          <p>{recipe.description}</p>
-          <h3>Ingredientes:</h3>
-          <ul>
-            {recipe.ingredients.map((ingredient, idx) => (
-              <li key={idx}>{ingredient}</li>
-            ))}
-          </ul>
-          <div className='recipe_buttons'>
-            {token && user && recipe.created_by === user.username && (
-              <>
-                <EditRecipeButton recipeId={recipe.id} />
-                <DeleteRecipeButton
-                  recipeId={recipe.id}
-                  token={token}
-                  user={user}
-                  onDelete={(data, tkn, usr) => {
-                    onDelete(data, tkn, usr);
-                    navigate("/");
-                  }}
-                />
-              </>
-            )}
-          </div>
-        </div>
-        <img
-          className="image_sample"
-          src={recipe.imageUrl || "img/recipe_sample_img.jpg"}
-          alt="Recipe sample"
-        />
+    <div className="recipe_detail">
+      <h1>{recipe.title}</h1>
+      <img
+        src={recipe.imageUrl}
+        alt={recipe.title}
+        style={{ maxWidth: "400px" }}
+      />
+      <p>
+        <strong>Descripción:</strong> {recipe.description}
+      </p>
+
+      <h2>Ingredientes</h2>
+      {Object.keys(recipe.ingredients).length > 0 ? (
+        <ul>
+          {Object.entries(recipe.ingredients).map(([name, quantity]) => (
+            <li key={name}>
+              {quantity} {name}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No se han añadido ingredientes.</p>
+      )}
+
+      <div className="buttons">
+        {user && (user.role === "admin" || user.username === recipe.created_by) && (
+          <>
+            <button onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>
+              ✏️ Editar
+            </button>
+            <button onClick={handleDelete}>🗑️ Eliminar</button>
+          </>
+        )}
+        <BackButton />
       </div>
-      <BackButton />
     </div>
   );
 }
