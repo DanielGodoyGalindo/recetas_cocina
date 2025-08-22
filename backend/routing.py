@@ -9,7 +9,10 @@ import json
 from flask import jsonify, request, Blueprint
 import mysql.connector
 
+# create Blueprint object
+# https://flask.palletsprojects.com/en/stable/blueprints/
 recipes_bp = Blueprint("recipes", __name__)
+
 
 # Routing
 @recipes_bp.route("/api/recipes", methods=["GET"])
@@ -21,7 +24,7 @@ def get_recipes():
     )
     recipes = cursor.fetchall()
 
-    # Convertir JSON de ingredients a dict
+    # Convert ingredients JSON to python dictionary
     for recipe in recipes:
         if recipe["ingredients"]:
             recipe["ingredients"] = json.loads(recipe["ingredients"])
@@ -235,7 +238,6 @@ def create_user():
         return jsonify({"error": "Faltan datos"}), 400
 
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-
     conn = get_db_connection()
     cursor = conn.cursor()
 

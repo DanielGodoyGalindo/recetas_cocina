@@ -35,6 +35,7 @@ CREATE TABLE users (
 )
 """)
 
+# @development
 # admin user
 username = "admin"
 password = "admin"
@@ -45,7 +46,7 @@ cursor.execute(
     (username, hashed_pw.decode("utf-8"), role),
 )
 
-# seeds con cantidades en ingredientes
+# seeds
 recipes = [
     {
         "title": "Tortilla de patatas",
@@ -97,6 +98,7 @@ recipes = [
 ]
 
 # Insertar recetas con ingredientes en JSON
+# insert recipes from recipes array
 for recipe in recipes:
     cursor.execute(
         """
@@ -107,6 +109,7 @@ for recipe in recipes:
         (
             recipe["title"],
             recipe["description"],
+            # serialize python dictionary to json string
             json.dumps(recipe["ingredients"], ensure_ascii=False),
             recipe["imageUrl"],
             recipe["description"],
