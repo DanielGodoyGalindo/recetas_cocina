@@ -19,8 +19,8 @@ function RecipeForm({ newRecipe, initialRecipe, user, onSave }: {
       : { title: "", description: "", imageUrl: "", created_by: user?.username || "", ingredients: {} }
   );
 
-  const [ingredientName, setIngredientName] = useState("");
-  const [ingredientQuantity, setIngredientQuantity] = useState("");
+  const [ingredientName, setIngredientName] = useState<string>("");
+  const [ingredientQuantity, setIngredientQuantity] = useState<string>("");
 
   // load recipe when editing
   useEffect(() => {
@@ -79,6 +79,7 @@ function RecipeForm({ newRecipe, initialRecipe, user, onSave }: {
           type="text"
           name="recipe_name"
           id="recipe_name"
+          className="recipe_form_input"
           value={recipe.title}
           onChange={(e) => setRecipe({ ...recipe, title: e.target.value })}
         /><br />
@@ -88,6 +89,7 @@ function RecipeForm({ newRecipe, initialRecipe, user, onSave }: {
           type="text"
           name="recipe_description"
           id="recipe_description"
+          className="recipe_form_input"
           value={recipe.description}
           onChange={(e) => setRecipe({ ...recipe, description: e.target.value })}
         /><br />
@@ -97,6 +99,7 @@ function RecipeForm({ newRecipe, initialRecipe, user, onSave }: {
           type="text"
           name="recipe_image_url"
           id="recipe_image_url"
+          className="recipe_form_input"
           value={recipe.imageUrl}
           onChange={(e) => setRecipe({ ...recipe, imageUrl: e.target.value })}
         /><br />

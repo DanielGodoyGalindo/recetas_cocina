@@ -59,12 +59,12 @@ ul:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-#recipeDetail {
+.recipe_detail {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5rem;
+  gap: 1rem;
 
   ul {
     background-color: lavenderblush;
@@ -84,7 +84,7 @@ ul:hover {
 }
 
 .image_sample {
-  width: 600px;
+  width: 500px;
   height: auto;
 }
 
@@ -101,6 +101,7 @@ ul:hover {
   cursor: pointer;
   font-size: medium;
   font-weight: bold;
+  margin-top: 1rem;
 }
 
 #login_form {
@@ -187,4 +188,14 @@ ul:hover {
 
 #new_recipe_button:hover {
   background: rgb(83, 165, 42);
+}
+
+.recipe_detail_main {
+  display: flex;
+  justify-content: center;
+  gap: 5rem;
+}
+
+.recipe_form_input{
+  width: 400px;
 }

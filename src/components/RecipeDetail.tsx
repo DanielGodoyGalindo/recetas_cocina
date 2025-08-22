@@ -46,39 +46,37 @@ function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
   return (
     <div className="recipe_detail">
       <h1>{recipe.title}</h1>
-      <img
-        src={recipe.imageUrl}
-        alt={recipe.title}
-        style={{ maxWidth: "400px" }}
-      />
-      <p>
-        <strong>Descripción:</strong> {recipe.description}
-      </p>
-
-      <h2>Ingredientes</h2>
-      {Object.keys(recipe.ingredients).length > 0 ? (
-        <ul>
-          {Object.entries(recipe.ingredients).map(([name, quantity]) => (
-            <li key={name}>
-              {quantity} {name}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No se han añadido ingredientes.</p>
-      )}
-
-      <div className="buttons">
-        {user && (user.role === "admin" || user.username === recipe.created_by) && (
-          <>
-            <button onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>
-              ✏️ Editar
-            </button>
-            <button onClick={handleDelete}>🗑️ Eliminar</button>
-          </>
-        )}
-        <BackButton />
+      <p><strong>Descripción:</strong> {recipe.description}</p>
+      <div className="recipe_detail_main">
+        <div className="recipe_detail_ingredients">
+          <h2>Ingredientes</h2>
+          {/* check if recipe object has ingredients */}
+          {Object.keys(recipe.ingredients).length > 0 ? (
+            <ul>
+              {/* converts the object to an array of [key, value] pairs, then loop with .map e.g ["azucar","100gr"]  */}
+              {Object.entries(recipe.ingredients).map(([name, quantity]) => (
+                <li key={name}>
+                  {quantity} {name} {/* 100gr azucar */}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No se han añadido ingredientes.</p>
+          )}
+          <div className="recipe_buttons">
+            {user && (user.role === "admin" || user.username === recipe.created_by) && (
+              <>
+                <button onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>
+                  ✏️ Editar
+                </button>
+                <button onClick={handleDelete}>🗑️ Eliminar</button>
+              </>
+            )}
+          </div>
+        </div>
+        <img src={recipe.imageUrl} alt={recipe.title} className="image_sample" />
       </div>
+      <BackButton />
     </div>
   );
 }
