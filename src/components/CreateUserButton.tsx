@@ -4,7 +4,7 @@ function CreateUserButton() {
     const navigate = useNavigate();
 
     return (
-        <div>
+        <div id="create_user_button">
             <button onClick={() => navigate("/create-user")}>
                 Nuevo usuario
             </button>

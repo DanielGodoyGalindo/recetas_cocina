@@ -196,6 +196,24 @@ ul:hover {
   gap: 5rem;
 }
 
-.recipe_form_input{
+.recipe_form_input {
   width: 400px;
+}
+
+#create_user_button {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 20vw;
+  margin-bottom: 5vh;
+  gap: 1.5rem;
+
+  button {
+    background: rgb(73, 151, 33);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 1rem;
+  }
 }
