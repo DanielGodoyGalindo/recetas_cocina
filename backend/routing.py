@@ -17,20 +17,21 @@ recipes_bp = Blueprint("recipes", __name__)
 # Routing
 @recipes_bp.route("/api/recipes", methods=["GET"])
 def get_recipes():
+    search = request.args.get("search", "")
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        "SELECT id, title, description, ingredients, imageUrl, created_by FROM recipes"
-    )
+    query = """
+        SELECT id, title, description, ingredients, imageUrl, created_by 
+        FROM recipes
+        WHERE title LIKE %s OR created_by LIKE %s OR ingredients LIKE %s
+    """
+    like = f"%{search}%"
+    cursor.execute(query, (like, like, like))
     recipes = cursor.fetchall()
-
-    # Convert ingredients JSON to python dictionary
     for recipe in recipes:
-        if recipe["ingredients"]:
-            recipe["ingredients"] = json.loads(recipe["ingredients"])
-        else:
-            recipe["ingredients"] = {}
-
+        recipe["ingredients"] = (
+            json.loads(recipe["ingredients"]) if recipe["ingredients"] else {}
+        )
     cursor.close()
     conn.close()
     return jsonify(recipes)

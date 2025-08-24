@@ -1,41 +1,48 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-
-// Define data type (Recipe)
-interface Recipe {
-  id: number;
-  title: string;
-}
+import RecipeSearchBar from "./RecipeSearchBar.tsx";
+import { Recipe } from "../Types";
 
 function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-
-    fetch("http://localhost:5000/api/recipes", {
-      headers: {
-        "Authorization": `Bearer ${token}`
+    const fetchRecipes = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/recipes");
+        const data = await res.json();
+        setRecipes(data);
+        setFilteredRecipes(data);
+      } catch (err) {
+        console.error("Error cargando recetas:", err);
       }
-    })
-      .then(res => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setRecipes(data);
-        } else {
-          console.error("Respuesta no es un array:", data);
-          setRecipes([]);
-        }
-      });
+    };
+    fetchRecipes();
   }, []);
 
+  const handleSearch = (searchTerm: string) => {
+    const filtered = recipes.filter((recipe) => {
+      const nameMatch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const ingredientMatch = Object.keys(recipe.ingredients).some((ing) =>
+        ing.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      const creatorMatch = recipe.created_by.toLowerCase().includes(searchTerm.toLowerCase());
+      return nameMatch || ingredientMatch || creatorMatch;
+    });
+    setFilteredRecipes(filtered);
+  };
+
   return (
-    <ul>
-      {recipes.map(recipe =>
-        <li key={recipe.id}>
-          <Link to={`/${recipe.id}`}>{recipe.title}</Link>
-        </li>)}
-    </ul>
+    <div>
+      <RecipeSearchBar onSearch={handleSearch} />
+      <ul>
+        {filteredRecipes.map((recipe) => (
+          <li key={recipe.id}>
+            <strong>{recipe.title}</strong> por {recipe.created_by}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
