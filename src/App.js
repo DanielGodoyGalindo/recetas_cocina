@@ -8,48 +8,30 @@ import CreateUserForm from './components/CreateUserForm.tsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout.tsx';
 import Login from "./components/Login";
-import { useState } from "react";
+import { useUser } from "./components/UserContext.tsx";
 
 function App() {
 
-  // State
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    try {
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  const { token, user, login, logout } = useUser();
 
-  // Logout
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  };
 
   // Crear receta
   const handleSaveRecipe = async (recipeData) => {
-    console.log("Datos de la receta a enviar:", recipeData);
-
     try {
       const res = await fetch("http://localhost:5000/api/recipes", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData), // ← ingredientes ya en JSON
+        body: JSON.stringify(recipeData),
       });
 
       const data = await res.json();
 
       if (res.status === 401) {
         alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
-        handleLogout();
+        logout();
         return;
       }
 
@@ -66,24 +48,21 @@ function App() {
 
   // Editar receta
   const handleEditRecipe = async (recipeData) => {
-    console.log("PUT URL:", `http://localhost:5000/api/recipes/${recipeData.id}`);
-    console.log("Token:", token);
-
     try {
       const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData), // ← ingredientes ya en JSON
+        body: JSON.stringify(recipeData),
       });
 
       const data = await res.json();
 
       if (res.status === 401) {
         alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
-        handleLogout();
+        logout();
         return;
       }
 
@@ -103,15 +82,15 @@ function App() {
       const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const data = await res.json();
 
       if (res.status === 401) {
         alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
-        handleLogout();
+        logout();
         return;
       }
 
@@ -129,15 +108,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route element={<Layout token={token} onLogout={handleLogout} user={user} />}>
-          <Route path="/" element={token ? [<WelcomeMessage />, <Recipes />] : <Navigate to="/login" />} />
-          <Route path="/login" element={<Login onLogin={(token, user) => {
-            setToken(token);
-            setUser(user);
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", JSON.stringify(user));
-          }}
-          />} />
+        <Route element={<Layout />}>
+          <Route path="/" element={token ? [<WelcomeMessage key="welcome" />, <Recipes key="recipes" />] : <Navigate to="/login" />} />
+          <Route path="/login" element={<Login onLogin={(token, user) => { login(token, user); }} />} />
           <Route path="/:id" element={<RecipeDetail token={token} user={user} onDelete={handleDeleteRecipe} />} />
           <Route path="/new_recipe" element={<RecipeForm newRecipe={true} user={user} onSave={handleSaveRecipe} />} />
           <Route path="/edit_recipe/:id" element={<EditRecipeWrapper user={user} token={token} onSave={handleEditRecipe} />} />

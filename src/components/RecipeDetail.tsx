@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "./BackButton.tsx";
-import { Recipe, User } from "../Types"; // centraliza en types.ts
+import { Recipe } from "../Types";
+import { useUser } from "../components/UserContext.tsx";
 
 interface RecipeDetailProps {
-  token: string | null;
-  user: User | null;
-  onDelete: (recipe: Recipe, token: string | null) => Promise<void>;
+  onDelete: (recipeId: number) => Promise<void>;
 }
 
-function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
+function RecipeDetail({ onDelete }: RecipeDetailProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     if (!id) return;
@@ -36,7 +36,7 @@ function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
 
   const handleDelete = async () => {
     if (recipe) {
-      await onDelete(recipe, token);
+      await onDelete(recipe.id);
       navigate("/");
     }
   };
@@ -82,3 +82,7 @@ function RecipeDetail({ token, user, onDelete }: RecipeDetailProps) {
 }
 
 export default RecipeDetail;
+
+
+
+

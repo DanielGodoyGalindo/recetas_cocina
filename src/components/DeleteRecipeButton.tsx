@@ -1,24 +1,23 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../components/UserContext";
 
 type DeleteRecipeButtonProps = {
     recipeId: number;
-    token: string | null;
-    user: any;
-    onDelete: (recipeData: { id: number }, token: string | null, user: string) => void;
+    onDelete: (recipeData: { id: number }) => void;
 };
 
-function DeleteRecipeButton({ recipeId, token, user, onDelete }: DeleteRecipeButtonProps) {
-
+function DeleteRecipeButton({ recipeId, onDelete }: DeleteRecipeButtonProps) {
     const navigate = useNavigate();
+    const { token, user } = useUser();
 
     const handleClick = () => {
         const confirmDelete = window.confirm("¿Seguro que quieres eliminar esta receta?");
         if (confirmDelete) {
-            onDelete({ id: recipeId }, token, user);
+            onDelete({ id: recipeId });
+            navigate("/");
         }
-        navigate("/");
-    }
+    };
 
     return (
         <button onClick={handleClick} id="delete_recipe_button">

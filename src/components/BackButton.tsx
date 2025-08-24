@@ -8,7 +8,7 @@ function BackButton() {
     }
 
     return (
-        <button className="back_button" onClick={handleClick}>Volver al listado</button>
+        <button type="button" className="back_button" onClick={handleClick}>Volver al listado</button>
     )
 }
 

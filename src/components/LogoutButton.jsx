@@ -1,14 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { useUser } from "../components/UserContext.tsx";
 
-function LogoutButton({ onLogout, user }) {
+function LogoutButton() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, logout } = useUser();
 
     // when logging out
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        if (onLogout) onLogout();
+        logout();
         navigate("/login");
     };
 

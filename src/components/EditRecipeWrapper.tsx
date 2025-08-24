@@ -22,7 +22,7 @@ function EditRecipeWrapper({ user, token, onSave }: EditRecipeWrapperProps) {
             .then((data: Recipe) => {
                 setRecipe({
                     ...data,
-                    ingredients: data.ingredients || {} // 👈 asegura que no sea null/undefined
+                    ingredients: data.ingredients || {}
                 });
                 setLoading(false);
             })
@@ -31,7 +31,6 @@ function EditRecipeWrapper({ user, token, onSave }: EditRecipeWrapperProps) {
 
     if (loading) return <p>Cargando...</p>;
 
-    // Si no hay usuario o no es el creador, redirige al home
     if (!user || !recipe || recipe.created_by !== user.username) {
         return <Navigate to="/" replace />;
     }
