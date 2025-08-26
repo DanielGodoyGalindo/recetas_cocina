@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../components/UserContext.tsx";
 
+// Personal project developed by Daniel Godoy
+// https://github.com/DanielGodoyGalindo
+
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");

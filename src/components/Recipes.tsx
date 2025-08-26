@@ -34,6 +34,9 @@ function Recipes() {
     setFilteredRecipes(filtered);
   };
 
+  // Personal project developed by Daniel Godoy
+  // https://github.com/DanielGodoyGalindo
+
   return (
     <div>
       {/* Every time the user types something, handleSearch is executed */}

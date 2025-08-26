@@ -1,6 +1,8 @@
 import mysql.connector
 from mysql.connector import Error
 
+# Personal project developed by Daniel Godoy
+# https://github.com/DanielGodoyGalindo
 
 # mysql connection
 def get_db_connection():

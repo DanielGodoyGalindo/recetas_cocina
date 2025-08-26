@@ -18,6 +18,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
   const { user, token } = useUser();
 
   const isCreator = user?.username === recipe?.created_by;
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     if (!id) return;
@@ -86,6 +87,9 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 
   if (!recipe) return <p>Cargando receta...</p>;
 
+  // Personal project developed by Daniel Godoy
+  // https://github.com/DanielGodoyGalindo
+
   return (
     <div className="recipe_detail">
       <h1>{recipe.title}</h1>
@@ -124,7 +128,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div className="recipe_comment" key={comment.id}>
-              <p>{comment.text_comment} {"⭐".repeat(comment.vote)}</p>
+              <p>{comment.text_comment} ({comment.vote}⭐)</p>
               <p id="p_comment"><strong>- {comment.username}</strong></p>
             </div>
           ))
@@ -133,7 +137,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         )}
       </div>
 
-      {!isCreator && (
+      {(isAdmin || !isCreator) && (
         <div id="add_comment_container">
           <h4>Deja tu comentario</h4>
           <textarea
@@ -150,7 +154,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         </div>
       )}
 
-      {isCreator && <p>No puedes comentar tu propia receta.</p>}
+      {(!isAdmin && isCreator ) && <p>No puedes comentar tu propia receta.</p>}
 
       <BackButton />
     </div>

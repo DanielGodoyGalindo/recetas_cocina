@@ -1,4 +1,5 @@
 function WelcomeMessage() {
+
     return (
         <div>
             <p>Bienvenido a mi app de recetas de cocina.
@@ -7,5 +8,8 @@ function WelcomeMessage() {
         </div>
     )
 }
+
+// Personal project developed by Daniel Godoy
+// https://github.com/DanielGodoyGalindo
 
 export default WelcomeMessage;

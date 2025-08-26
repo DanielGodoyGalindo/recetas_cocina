@@ -51,6 +51,9 @@ cursor.execute("""
 )             
 """)
 
+# Personal project developed by Daniel Godoy
+# https://github.com/DanielGodoyGalindo
+
 # @development
 # admin user
 username = "admin"

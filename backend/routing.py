@@ -85,6 +85,8 @@ def get_comments(recipe_id):
 
     return jsonify(comments), 200
 
+# Personal project developed by Daniel Godoy
+# https://github.com/DanielGodoyGalindo
 
 @recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["POST"])
 @jwt_required()

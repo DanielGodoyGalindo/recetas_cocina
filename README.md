@@ -2,6 +2,9 @@
 
 Aplicación web desarrollada con React + Flask para la gestión de recetas de cocina. El usuario debe autenticarse para poder acceder a la app. Si no tiene usuario creado, debe registrarse. Al acceder se redirige a la página principal donde se listan todas las recetas creadas por todos los usuarios.
 
+<!-- Personal project developed by Daniel Godoy -->
+<!-- https://github.com/DanielGodoyGalindo -->
+
 ## Herramientas y lenguajes utilizados:
 <p style="display:flex; justify-content:center;gap:2rem;">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="60"/>
@@ -28,10 +31,17 @@ Uso de Blueprints de Flask para el enrutamiento de la app. Cada ruta tiene un co
 ### Buscador de recetas por nombre, ingrediente o creador de la receta
 Busca en la BDD por medio del Backend el término escrito por el usuario y muestra el resultado en tiempo real, de esta manera la búsqueda es mucho más eficiente que si se realizase en el Frontend.
 
-### React context
+### React Hooks
+
+#### *useState*
+Utilizado para mantener una variable de estado dentro de cada componente, como por ejemplo para obtener la receta a la que el usuario accede.
+
+#### *useEffect*
+Para mantener el comopnente sincronizado con elementos externos como por ejemplo formularios que obtienen datos cuando se edita una receta.
+
+#### *useContext*
 Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app.
 
 ### ToDo --> Comentarios en recetas
-Crear botón para crear comentario / voto.
 Comentarios: si hay muchos votos que se paginen de 5 en 5.
 El usuario creador de la receta no puede votarse a si mismo, solo lo puede hacer admin.

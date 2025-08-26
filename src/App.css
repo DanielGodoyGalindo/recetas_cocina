@@ -252,6 +252,7 @@ ul:hover {
   background-color: lightyellow;
   padding: 1rem;
   border: 1px solid black;
+  margin-bottom: 2rem;
 }
 
 #p_comment{

@@ -7,6 +7,9 @@ type DeleteRecipeButtonProps = {
     onDelete: (recipeData: { id: number }) => void;
 };
 
+// Personal project developed by Daniel Godoy
+// https://github.com/DanielGodoyGalindo
+
 function DeleteRecipeButton({ recipeId, onDelete }: DeleteRecipeButtonProps) {
     const navigate = useNavigate();
     const { token, user } = useUser();

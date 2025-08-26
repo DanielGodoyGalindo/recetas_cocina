@@ -3,9 +3,12 @@ import LogoutButton from "./LogoutButton";
 import CreateUserButton from "./CreateUserButton.tsx";
 import { useUser } from "./UserContext.tsx"
 
+// Personal project developed by Daniel Godoy
+// https://github.com/DanielGodoyGalindo
+
 // Main structure of the app
 function Layout() {
-    
+
     const { token } = useUser();
 
     return (
