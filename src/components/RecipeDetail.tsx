@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "./BackButton.tsx";
-import { Recipe } from "../Types";
+import { Recipe, Comment } from "../Types";
 import { useUser } from "../components/UserContext.tsx";
 
 interface RecipeDetailProps {
@@ -12,6 +12,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const { user } = useUser();
 
   useEffect(() => {
@@ -31,7 +32,19 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
       }
     };
 
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/recipes/${id}/comments`);
+        const data = await res.json();
+        setComments(data);
+      } catch (err) {
+        console.error("Error cargando comentarios:", err);
+      }
+    };
+
     fetchRecipe();
+    fetchComments();
+
   }, [id]);
 
   const handleDelete = async () => {
@@ -46,10 +59,10 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
   return (
     <div className="recipe_detail">
       <h1>{recipe.title}</h1>
-      <p><strong>Descripción:</strong> {recipe.description}</p>
-      <div className="recipe_detail_main">
-        <div className="recipe_detail_ingredients">
-          <h2>Ingredientes</h2>
+      <div className="recipe_details_image">
+        <div className="recipe_detail_main">
+          <p><strong>Descripción:</strong> {recipe.description}</p>
+          <h3>Ingredientes</h3>
           {/* check if recipe object has ingredients */}
           {Object.keys(recipe.ingredients).length > 0 ? (
             <ul>
@@ -75,6 +88,20 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
           </div>
         </div>
         <img src={recipe.imageUrl} alt={recipe.title} className="image_sample" />
+      </div>
+      <div id="comments_container">
+        <h3>Comentarios</h3>
+        {comments.length > 0 ? (
+          comments.map((comment) => (
+            <p className="recipe_comment" key={comment.id}>
+              {comment.text_comment}{" "}
+              {"⭐".repeat(comment.vote)}
+              <p id="p_comment"><strong>- {comment.username}</strong></p>
+            </p>
+          ))
+        ) : (
+          <p>No hay comentarios aún.</p>
+        )}
       </div>
       <BackButton />
     </div>

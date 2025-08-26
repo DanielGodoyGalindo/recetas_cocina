@@ -63,6 +63,29 @@ def get_recipe(recipe_id):
     return jsonify(recipe)
 
 
+@recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["GET"])
+def get_comments(recipe_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT c.id, c.text_comment, c.vote, u.username
+        FROM comments c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.recipe_id = %s
+    """,
+        (recipe_id,),
+    )
+    comments = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not comments:
+        return jsonify([]), 200
+
+    return jsonify(comments), 200
+
+
 @recipes_bp.route("/api/recipes", methods=["POST"])
 @jwt_required()
 def create_recipe():

@@ -8,10 +8,19 @@ export interface User {
 }
 
 export interface Recipe {
-  id?: number;
+  id: number;
   title: string;
   description: string;
   ingredients: Record<string, string>; // property with key and value
   imageUrl: string;
   created_by: string;
+}
+
+export interface Comment {
+  id: number;
+  text_comment: string;
+  vote: number;
+  recipe_id: number;
+  user_id: number;
+  username: string;
 }

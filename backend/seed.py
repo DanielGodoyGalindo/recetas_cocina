@@ -2,6 +2,8 @@ import mysql.connector
 import bcrypt
 import json
 
+# https://pypi.org/project/flask-mysql-connector/
+
 # mysql connection
 conn = mysql.connector.connect(host="localhost", user="root", password="root")
 cursor = conn.cursor()
@@ -35,6 +37,20 @@ CREATE TABLE users (
 )
 """)
 
+# comments table
+cursor.execute("""
+  CREATE TABLE comments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    text_comment TEXT NOT NULL,
+    vote INT NOT NULL CHECK (vote BETWEEN 1 AND 5),
+    recipe_id INT NOT NULL,
+    user_id INT NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT unique_user_recipe UNIQUE (user_id, recipe_id)
+)             
+""")
+
 # @development
 # admin user
 username = "admin"
@@ -55,7 +71,7 @@ recipes = [
             "Huevos": "4",
             "Patatas": "300 gr",
             "Aceite": "al gusto",
-            "Sal": "una pizca"
+            "Sal": "una pizca",
         },
         "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2025/02/tortilla-de-patatas-1.jpg",
     },
@@ -66,7 +82,7 @@ recipes = [
             "Arroz": "250 gr",
             "Langostinos": "8",
             "Azafrán": "1 sobre",
-            "Pimiento": "1"
+            "Pimiento": "1",
         },
         "imageUrl": "https://imag.bonviveur.com/paella-de-pollo.jpg",
     },
@@ -78,7 +94,7 @@ recipes = [
             "Levadura": "1 sobre",
             "Tomate": "200 gr",
             "Mozarella": "150 gr",
-            "Albahaca": "al gusto"
+            "Albahaca": "al gusto",
         },
         "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg",
     },
@@ -91,10 +107,10 @@ recipes = [
             "Azúcar": "30 gr",
             "Huevos": "2",
             "Leche": "200 ml",
-            "Levadura": "1 cucharadita"
+            "Levadura": "1 cucharadita",
         },
         "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2024/10/receta-de-tortitas-1024x683.jpg",
-    }
+    },
 ]
 
 # Insertar recetas con ingredientes en JSON

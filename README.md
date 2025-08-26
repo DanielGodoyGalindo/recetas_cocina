@@ -24,3 +24,12 @@ Los usuarios guardan su rol y pueden editar y borrar sus recetas. Los admin pued
 
 ### Routing
 Uso de Blueprints de Flask para el enrutamiento de la app. Cada ruta tiene un comportamiento definido con Python. Se utiliza JWT para asegurar las rutas.
+
+### Buscador de recetas por nombre, ingrediente o creador de la receta
+Busca en la BDD por medio del Backend el término escrito por el usuario y muestra el resultado en tiempo real, de esta manera la búsqueda es mucho más eficiente que si se realizase en el Frontend.
+
+### React context
+Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app.
+
+### ToDo --> Comentarios en recetas
+Crear nueva tabla para guardar comentarios y votos que hagan los usuarios de cada receta. Un voto / comentario por usuario. Dentro de cada receta aparecerán los comentarios de los usuarios con el voto de cada comentario, si hay muchos votos que se paginen de 5 en 5. El usuario creador de la receta no puede votarse a si mismo, solo lo puede hacer admin.
