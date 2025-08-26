@@ -32,4 +32,6 @@ Busca en la BDD por medio del Backend el término escrito por el usuario y muest
 Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app.
 
 ### ToDo --> Comentarios en recetas
-Crear nueva tabla para guardar comentarios y votos que hagan los usuarios de cada receta. Un voto / comentario por usuario. Dentro de cada receta aparecerán los comentarios de los usuarios con el voto de cada comentario, si hay muchos votos que se paginen de 5 en 5. El usuario creador de la receta no puede votarse a si mismo, solo lo puede hacer admin.
+Crear botón para crear comentario / voto.
+Comentarios: si hay muchos votos que se paginen de 5 en 5.
+El usuario creador de la receta no puede votarse a si mismo, solo lo puede hacer admin.

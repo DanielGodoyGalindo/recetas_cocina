@@ -86,6 +86,71 @@ def get_comments(recipe_id):
     return jsonify(comments), 200
 
 
+@recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["POST"])
+@jwt_required()
+def add_comment(recipe_id):
+    current_user = get_jwt_identity()  # username del usuario autenticado
+    data = request.get_json()
+    text_comment = data.get("text_comment")
+    vote = data.get("vote")
+
+    # Validaciones básicas
+    if not text_comment:
+        return jsonify({"error": "El comentario es obligatorio"}), 400
+
+    if not isinstance(vote, int) or vote < 1 or vote > 5:
+        return jsonify({"error": "El voto debe estar entre 1 y 5"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    # Obtener información de la receta
+    cursor.execute("SELECT created_by FROM recipes WHERE id=%s", (recipe_id,))
+    recipe = cursor.fetchone()
+
+    if not recipe:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Receta no encontrada"}), 404
+
+    # Evitar que el creador comente su propia receta
+    if recipe["created_by"] == current_user:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "No puedes comentar tu propia receta"}), 403
+
+    # Obtener id del usuario actual
+    cursor.execute("SELECT id FROM users WHERE username=%s", (current_user,))
+    user_row = cursor.fetchone()
+    if not user_row:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    user_id = user_row["id"]
+
+    # Insertar comentario
+    cursor.execute(
+        "INSERT INTO comments (text_comment, vote, recipe_id, user_id) VALUES (%s, %s, %s, %s)",
+        (text_comment, vote, recipe_id, user_id),
+    )
+    conn.commit()
+
+    # Obtener el comentario insertado con username
+    comment_id = cursor.lastrowid
+    cursor.execute(
+        "SELECT c.id, c.text_comment, c.vote, u.username "
+        "FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = %s",
+        (comment_id,),
+    )
+    new_comment = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(new_comment), 201
+
+
 @recipes_bp.route("/api/recipes", methods=["POST"])
 @jwt_required()
 def create_recipe():
