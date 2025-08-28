@@ -12,8 +12,12 @@ cursor = conn.cursor()
 cursor.execute("CREATE DATABASE IF NOT EXISTS recipesapp")
 cursor.execute("USE recipesapp")
 
-cursor.execute("DROP TABLE IF EXISTS recipes;")
+# drop tables
+cursor.execute("DROP TABLE IF EXISTS recipe_steps;")
+cursor.execute("DROP TABLE IF EXISTS comments;")
 cursor.execute("DROP TABLE IF EXISTS users;")
+cursor.execute("DROP TABLE IF EXISTS recipes;")
+
 
 # recipes table
 cursor.execute("""
@@ -49,6 +53,19 @@ cursor.execute("""
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT unique_user_recipe UNIQUE (user_id, recipe_id)
 )             
+""")
+
+# steps table
+cursor.execute("""
+CREATE TABLE recipe_steps (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id INT NOT NULL,
+    position INT NOT NULL,
+    instruction TEXT NOT NULL,
+    duration_min INT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
+    UNIQUE (recipe_id, position)
+)
 """)
 
 # Personal project developed by Daniel Godoy

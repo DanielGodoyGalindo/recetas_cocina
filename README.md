@@ -42,6 +42,8 @@ Para mantener el comopnente sincronizado con elementos externos como por ejemplo
 #### *useContext*
 Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app.
 
-### ToDo --> Comentarios en recetas
-Comentarios: si hay muchos votos que se paginen de 5 en 5.
-El usuario creador de la receta no puede votarse a si mismo, solo lo puede hacer admin.
+### Comentarios en recetas
+Los usuarios puede dejar un comentario y una valoración en cada una de las recetas. Un usuario no puede votarse a si mísmo y sólo puede dejar un comentario por receta. Cuando se visualiza una receta, aparecen todos los comentarios de los usuarios.
+
+### ToDo --> pasos en recetas
+Se añaden pasos en cada una de las recetas, se indican las duraciones de cada paso y cual es su posición para tenerlos en orden.

@@ -88,6 +88,9 @@ ul:hover {
   height: auto;
 }
 
+/* Personal project developed by Daniel Godoy
+https://github.com/DanielGodoyGalindo */
+
 .main_details {
   display: flex;
   flex-direction: row;
@@ -102,6 +105,7 @@ ul:hover {
   font-size: medium;
   font-weight: bold;
   margin-top: 1rem;
+  margin-bottom: 3rem;
 }
 
 #login_form {
@@ -196,7 +200,7 @@ ul:hover {
   justify-content: center;
 }
 
-.recipe_details_image{
+.recipe_details_image {
   display: flex;
   gap: 5rem;
 }
@@ -223,14 +227,16 @@ ul:hover {
   }
 }
 
-#recipe_search_bar{
+#recipe_search_bar {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 1rem;
-  p{
+
+  p {
     font-weight: bold;
   }
+
   input {
     width: 300px;
     border-style: double;
@@ -239,25 +245,52 @@ ul:hover {
   }
 }
 
-#comments_container{
+#comments_container {
   display: flex;
   flex-direction: column;
   justify-content: center;
+
   h3 {
     align-self: center;
   }
 }
 
-.recipe_comment{
+.recipe_comment {
   background-color: lightyellow;
   padding: 1rem;
   border: 1px solid black;
   margin-bottom: 2rem;
 }
 
-#p_comment{
+#p_comment {
   text-align: end;
   font-style: italic;
   color: grey;
   font-size: smaller;
+}
+
+#add_comment_container {
+  display: flex;
+  flex-direction: column;
+
+  textarea {
+    width: 20dvw;
+    height: 50px;
+  }
+
+  select {
+    width: 50px;
+  }
+
+  #vote_input_button {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 20px;
+  }
+
+  button {
+    background: white;
+    cursor: pointer;
+  }
 }

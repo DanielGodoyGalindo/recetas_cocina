@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from './BackButton.tsx';
-import { Recipe } from "../Types";
+import { Recipe, Step } from "../Types";
 import { useUser } from "./UserContext.tsx";
 
 interface RecipeFormProps {
@@ -17,20 +17,25 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
 
   const [recipe, setRecipe] = useState<Recipe>(
     initialRecipe
-      ? { ...initialRecipe, created_by: initialRecipe.created_by }
-      : { title: "", description: "", imageUrl: "", created_by: user?.username || "", ingredients: {} }
+      ? { ...initialRecipe, steps: initialRecipe.steps || [], ingredients: initialRecipe.ingredients || {} }
+      : { title: "", description: "", imageUrl: "", created_by: user?.username || "", ingredients: {}, steps: [] }
   );
 
+  // Inputs controlados
   const [ingredientName, setIngredientName] = useState<string>("");
   const [ingredientQuantity, setIngredientQuantity] = useState<string>("");
+  const [stepDescription, setStepDescription] = useState<string>("");
+  const [stepDuration, setStepDuration] = useState<string>(""); // en minutos
 
   useEffect(() => {
     if (!newRecipe && id) {
       const fetchRecipe = async () => {
         try {
           const res = await fetch(`http://localhost:5000/api/recipes/${id}`);
+          const res2 = await fetch(`http://localhost:5000/api/recipes/${id}/steps`);
           const data = await res.json();
-          setRecipe({ ...data, ingredients: data.ingredients || {} });
+          const data2 = await res2.json();
+          setRecipe({ ...data, ingredients: data.ingredients || {}, steps: data2 || [] });
         } catch (err) {
           console.error("Error cargando receta:", err);
         }
@@ -47,6 +52,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
     }
   };
 
+  // INGREDIENTES
   const addIngredient = () => {
     if (ingredientName.trim() && ingredientQuantity.trim()) {
       setRecipe({
@@ -65,6 +71,33 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
     const updatedIngredients = { ...recipe.ingredients };
     delete updatedIngredients[name];
     setRecipe({ ...recipe, ingredients: updatedIngredients });
+  };
+
+  // STEPS
+  const addStep = () => {
+    if (stepDescription.trim()) {
+      const durationMin = parseInt(stepDuration) || 0;
+      const newStep: Step = {
+        id: Date.now(), // generate random id, when backend saves it autoincrements
+        recipe_id: recipe.id || 0,
+        position: recipe.steps.length + 1,
+        instruction: stepDescription.trim(),
+        duration_min: durationMin
+      };
+      setRecipe({
+        ...recipe,
+        steps: [...recipe.steps, newStep]
+      });
+      setStepDescription("");
+      setStepDuration("");
+    }
+  };
+
+  const removeStep = (id: number) => {
+    setRecipe({
+      ...recipe,
+      steps: recipe.steps.filter((s) => s.id !== id)
+    });
   };
 
   return (
@@ -99,6 +132,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
           onChange={(e) => setRecipe({ ...recipe, imageUrl: e.target.value })}
         /><br />
 
+        {/* INGREDIENTES */}
         <label>Ingredientes:</label><br />
         <input
           type="text"
@@ -123,6 +157,33 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
             </li>
           ))}
         </ul>
+
+        {/* STEPS */}
+        <label>Pasos:</label><br />
+        <input
+          type="text"
+          placeholder="Indica el siguiente paso"
+          value={stepDescription}
+          onChange={(e) => setStepDescription(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Duración (min)"
+          value={stepDuration}
+          onChange={(e) => setStepDuration(e.target.value)}
+          min="0"
+        />
+        <button type="button" onClick={addStep}>Añadir</button>
+
+        <ol>
+          {recipe.steps.map((s) => (
+            <li key={s.id}>
+              {s.instruction}{" "}
+              {s.duration_min ? `(${s.duration_min} min)` : ""}
+              <button type="button" onClick={() => removeStep(s.id)}>❌</button>
+            </li>
+          ))}
+        </ol>
 
         <div id="recipe_form_buttons">
           <button type="submit" className="back_button">Guardar receta</button>

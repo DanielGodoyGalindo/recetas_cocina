@@ -14,6 +14,7 @@ export interface Recipe {
   ingredients: Record<string, string>; // property with key and value
   imageUrl: string;
   created_by: string;
+  steps: Step[];
 }
 
 export interface Comment {
@@ -23,4 +24,12 @@ export interface Comment {
   recipe_id: number;
   user_id: number;
   username: string;
+}
+
+export interface Step {
+  	id: number;
+    recipe_id: number;
+    position: number;
+    instruction: string;
+    duration_min: number;
 }

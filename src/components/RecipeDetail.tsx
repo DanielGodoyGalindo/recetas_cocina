@@ -145,16 +145,18 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Escribe tu comentario..."
           />
-          <select value={newVote} onChange={(e) => setNewVote(Number(e.target.value))}>
-            {[1, 2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>{n}⭐</option>
-            ))}
-          </select>
-          <button onClick={handleAddComment}>Añadir comentario</button>
+          <div id="vote_input_button">
+            <select value={newVote} onChange={(e) => setNewVote(Number(e.target.value))}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n}>{n}⭐</option>
+              ))}
+            </select>
+            <button onClick={handleAddComment}>Añadir comentario</button>
+          </div>
         </div>
       )}
 
-      {(!isAdmin && isCreator ) && <p>No puedes comentar tu propia receta.</p>}
+      {(!isAdmin && isCreator) && <p>No puedes comentar tu propia receta.</p>}
 
       <BackButton />
     </div>

@@ -85,8 +85,10 @@ def get_comments(recipe_id):
 
     return jsonify(comments), 200
 
+
 # Personal project developed by Daniel Godoy
 # https://github.com/DanielGodoyGalindo
+
 
 @recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["POST"])
 @jwt_required()
@@ -96,7 +98,7 @@ def add_comment(recipe_id):
     text_comment = data.get("text_comment")
     vote = data.get("vote")
 
-    # Validaciones básicas
+    # validate
     if not text_comment:
         return jsonify({"error": "El comentario es obligatorio"}), 400
 
@@ -106,7 +108,6 @@ def add_comment(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Obtener información de la receta
     cursor.execute("SELECT created_by FROM recipes WHERE id=%s", (recipe_id,))
     recipe = cursor.fetchone()
 
@@ -115,13 +116,12 @@ def add_comment(recipe_id):
         conn.close()
         return jsonify({"error": "Receta no encontrada"}), 404
 
-    # Evitar que el creador comente su propia receta
+    # Creator can't leave comment in its own recipe
     if recipe["created_by"] == current_user:
         cursor.close()
         conn.close()
         return jsonify({"error": "No puedes comentar tu propia receta"}), 403
 
-    # Obtener id del usuario actual
     cursor.execute("SELECT id FROM users WHERE username=%s", (current_user,))
     user_row = cursor.fetchone()
     if not user_row:
@@ -131,14 +131,13 @@ def add_comment(recipe_id):
 
     user_id = user_row["id"]
 
-    # Insertar comentario
+    # Insert comment
     cursor.execute(
         "INSERT INTO comments (text_comment, vote, recipe_id, user_id) VALUES (%s, %s, %s, %s)",
         (text_comment, vote, recipe_id, user_id),
     )
     conn.commit()
 
-    # Obtener el comentario insertado con username
     comment_id = cursor.lastrowid
     cursor.execute(
         "SELECT c.id, c.text_comment, c.vote, u.username "
@@ -156,29 +155,52 @@ def add_comment(recipe_id):
 @recipes_bp.route("/api/recipes", methods=["POST"])
 @jwt_required()
 def create_recipe():
-    current_user = get_jwt_identity()
     data = request.get_json()
     title = data.get("title")
     description = data.get("description")
     imageUrl = data.get("imageUrl")
+    created_by = data.get("created_by", "admin")
     ingredients = data.get("ingredients", {})
-
-    if not title or not description or not ingredients:
-        return jsonify(
-            {"msg": "Título, descripción e ingredientes son obligatorios"}
-        ), 400
+    steps = data.get("steps", [])
 
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # 1. Insertar receta
     cursor.execute(
-        "INSERT INTO recipes (title, description, ingredients, imageUrl, created_by) VALUES (%s, %s, %s, %s, %s)",
-        (title, description, json.dumps(ingredients), imageUrl, current_user),
+        """
+        INSERT INTO recipes (title, description, ingredients, imageUrl, created_by)
+        VALUES (%s, %s, %s, %s, %s)
+    """,
+        (
+            title,
+            description,
+            json.dumps(ingredients, ensure_ascii=False),
+            imageUrl,
+            created_by,
+        ),
     )
+
+    recipe_id = cursor.lastrowid
+
+    # 2. Insertar steps en minutos
+    for i, step in enumerate(steps, start=1):
+        instruction = step.get("instruction")
+        duration_min = step.get("duration_min")  # directamente en minutos
+
+        cursor.execute(
+            """
+            INSERT INTO recipe_steps (recipe_id, position, instruction, duration_min)
+            VALUES (%s, %s, %s, %s)
+        """,
+            (recipe_id, i, instruction, duration_min),
+        )
+
     conn.commit()
     cursor.close()
     conn.close()
 
-    return jsonify({"msg": "Receta creada con éxito"}), 201
+    return jsonify({"message": "Receta creada con éxito", "recipe_id": recipe_id}), 201
 
 
 @recipes_bp.route("/api/recipes/<int:recipe_id>", methods=["PUT"])
@@ -346,3 +368,45 @@ def create_user():
         conn.close()
 
     return jsonify({"msg": "Usuario creado correctamente!"})
+
+
+# Recipe Steps
+
+
+@recipes_bp.route("/api/recipes/<int:recipe_id>/steps", methods=["GET"])
+def get_steps(recipe_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT id, position, instruction, duration_sec, media_url "
+        "FROM recipe_steps WHERE recipe_id=%s ORDER BY position",
+        (recipe_id,),
+    )
+    steps = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    if not steps:
+        return jsonify({"error": "No se han encontrado los pasos para la receta!"}), 404
+    return jsonify(steps)
+
+
+@recipes_bp.route("/api/recipes/<int:recipe_id>/steps", methods=["GET"])
+def get_recipe_steps(recipe_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute(
+        """
+        SELECT id, recipe_id, position, instruction, duration_min
+        FROM recipe_steps
+        WHERE recipe_id = %s
+        ORDER BY position ASC
+    """,
+        (recipe_id,),
+    )
+
+    steps = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return jsonify(steps)
