@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "./BackButton.tsx";
-import { Recipe, Comment } from "../Types";
+import { Recipe, Comment, Step } from "../Types";
 import { useUser } from "./UserContext.tsx";
 
 interface RecipeDetailProps {
@@ -9,13 +9,16 @@ interface RecipeDetailProps {
 }
 
 function RecipeDetail({ onDelete }: RecipeDetailProps) {
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, token } = useUser();
+  // States
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [newVote, setNewVote] = useState(5);
-  const { user, token } = useUser();
+  const [steps, setSteps] = useState<Step[]>([]);
 
   const isCreator = user?.username === recipe?.created_by;
   const isAdmin = user?.role === "admin";
@@ -46,8 +49,20 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
       }
     };
 
+    const fetchSteps = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/recipes/${id}/steps`);
+        const data = await res.json();
+        console.log("Steps desde backend:", data);
+        setSteps(data);
+      } catch (e) {
+        console.log(`Error obteniendo los pasos de la receta: ${e}`);
+      }
+    };
+
     fetchRecipe();
     fetchComments();
+    fetchSteps();
   }, [id]);
 
   const handleDelete = async () => {
@@ -121,6 +136,16 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         </div>
 
         <img src={recipe.imageUrl} alt={recipe.title} className="image_sample" />
+      </div>
+
+      <div id="steps_container">
+            <ol>
+              {steps.map((step) => (
+                <li key={step.position}>
+                  {step.position} {step.instruction} {step.duration_min} ${"min"}
+                </li>
+              ))}
+            </ol>
       </div>
 
       <div id="comments_container">

@@ -374,23 +374,6 @@ def create_user():
 
 
 @recipes_bp.route("/api/recipes/<int:recipe_id>/steps", methods=["GET"])
-def get_steps(recipe_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        "SELECT id, position, instruction, duration_sec, media_url "
-        "FROM recipe_steps WHERE recipe_id=%s ORDER BY position",
-        (recipe_id,),
-    )
-    steps = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    if not steps:
-        return jsonify({"error": "No se han encontrado los pasos para la receta!"}), 404
-    return jsonify(steps)
-
-
-@recipes_bp.route("/api/recipes/<int:recipe_id>/steps", methods=["GET"])
 def get_recipe_steps(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)

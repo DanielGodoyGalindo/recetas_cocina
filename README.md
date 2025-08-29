@@ -47,3 +47,4 @@ Los usuarios puede dejar un comentario y una valoración en cada una de las rece
 
 ### ToDo --> pasos en recetas
 Se añaden pasos en cada una de las recetas, se indican las duraciones de cada paso y cual es su posición para tenerlos en orden.
+Falta mostrar los steps en el frontend. (ya se añaden a la bdd y se relacionan con la receta)
