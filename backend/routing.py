@@ -212,6 +212,7 @@ def update_recipe(recipe_id):
     description = data.get("description")
     imageUrl = data.get("imageUrl")
     ingredients = data.get("ingredients", {})
+    steps = data.get("steps", [])
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -236,6 +237,14 @@ def update_recipe(recipe_id):
         "UPDATE recipes SET title=%s, description=%s, ingredients=%s, imageUrl=%s WHERE id=%s",
         (title, description, json.dumps(ingredients), imageUrl, recipe_id),
     )
+
+    cursor.execute("DELETE FROM recipe_steps WHERE recipe_id = %s", (recipe_id,))
+    for step in steps:
+        cursor.execute(
+            "INSERT INTO recipe_steps (recipe_id, position, instruction, duration_min) VALUES (%s, %s, %s, %s)",
+            (recipe_id, step["position"], step["instruction"], step["duration_min"]),
+        )
+
     conn.commit()
     cursor.close()
     conn.close()

@@ -112,6 +112,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         <div className="recipe_detail_main">
           <p><strong>Descripción:</strong> {recipe.description}</p>
 
+          {/* Ingredients list */}
           <h3>Ingredientes</h3>
           {Object.keys(recipe.ingredients).length > 0 ? (
             <ul>
@@ -125,6 +126,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
             <p>No se han añadido ingredientes.</p>
           )}
 
+          {/* Edit / Delete buttons */}
           <div className="recipe_buttons">
             {user && (user.role === "admin" || user.username === recipe.created_by) && (
               <>
@@ -138,16 +140,22 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         <img src={recipe.imageUrl} alt={recipe.title} className="image_sample" />
       </div>
 
+      {/* Steps */}
       <div id="steps_container">
-            <ol>
-              {steps.map((step) => (
-                <li key={step.position}>
-                  {step.position} {step.instruction} {step.duration_min} ${"min"}
-                </li>
-              ))}
-            </ol>
+        <ol>
+          {steps.map((step) => (
+            <li key={step.position}>
+              {step.instruction} <strong>{"(" + step.duration_min} {" min)"}</strong>
+            </li>
+          ))}
+        </ol>
+        <span>
+          <i><strong>Tiempo total:{" "}
+            {steps.reduce((total, step) => total + step.duration_min, 0)} min</strong></i>
+        </span>
       </div>
 
+      {/* Comments */}
       <div id="comments_container">
         <h3>Comentarios</h3>
         {comments.length > 0 ? (

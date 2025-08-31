@@ -179,7 +179,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
           {recipe.steps.map((s) => (
             <li key={s.id}>
               {s.instruction}{" "}
-              {s.duration_min ? `(${s.duration_min} min)` : ""}
+              {s.duration_min ? "(" + s.duration_min + " min)" : "" }
               <button type="button" onClick={() => removeStep(s.id)}>❌</button>
             </li>
           ))}
