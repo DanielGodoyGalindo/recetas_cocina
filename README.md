@@ -45,6 +45,6 @@ Se utiliza para la autenticación del usuario, guardando el token durente la ses
 ### Comentarios en recetas
 Los usuarios puede dejar un comentario y una valoración en cada una de las recetas. Un usuario no puede votarse a si mísmo y sólo puede dejar un comentario por receta. Cuando se visualiza una receta, aparecen todos los comentarios de los usuarios.
 
-### ToDo --> pasos en recetas
-Se añaden pasos en cada una de las recetas, se indican las duraciones de cada paso y cual es su posición para tenerlos en orden.
-Falta mostrar los steps en el frontend. (ya se añaden a la bdd y se relacionan con la receta)
+### ToDo
+pasos en recetas --> Mejorar los estilos de los pasos
+añadir botón para compartir receta (incluir toda la info de la receta)

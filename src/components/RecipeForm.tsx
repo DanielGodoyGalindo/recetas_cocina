@@ -15,10 +15,9 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
   const { id } = useParams();
   const { user } = useUser();
 
-  const [recipe, setRecipe] = useState<Recipe>(
-    initialRecipe
-      ? { ...initialRecipe, steps: initialRecipe.steps || [], ingredients: initialRecipe.ingredients || {} }
-      : { title: "", description: "", imageUrl: "", created_by: user?.username || "", ingredients: {}, steps: [] }
+  const [recipe, setRecipe] = useState<Recipe>(initialRecipe
+    ? { ...initialRecipe, steps: initialRecipe.steps || [], ingredients: initialRecipe.ingredients || {} }
+    : { title: "", description: "", imageUrl: "", created_by: user?.username || "", ingredients: {}, steps: [] }
   );
 
   // Inputs controlados
@@ -179,7 +178,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
           {recipe.steps.map((s) => (
             <li key={s.id}>
               {s.instruction}{" "}
-              {s.duration_min ? "(" + s.duration_min + " min)" : "" }
+              {s.duration_min ? "(" + s.duration_min + " min)" : ""}
               <button type="button" onClick={() => removeStep(s.id)}>❌</button>
             </li>
           ))}

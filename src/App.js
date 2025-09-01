@@ -15,7 +15,7 @@ function App() {
   const { token, user, login, logout } = useUser();
 
 
-  // Crear receta
+  // Create recipe
   const handleSaveRecipe = async (recipeData) => {
     try {
       const res = await fetch("http://localhost:5000/api/recipes", {
@@ -46,7 +46,7 @@ function App() {
     }
   };
 
-  // Editar receta
+  // Edit recipe
   const handleEditRecipe = async (recipeData) => {
     try {
       const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
@@ -76,7 +76,7 @@ function App() {
     }
   };
 
-  // Eliminar receta
+  // Delete recipe
   const handleDeleteRecipe = async (recipeData) => {
     try {
       const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {

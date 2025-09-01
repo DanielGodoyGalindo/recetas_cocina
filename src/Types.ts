@@ -8,7 +8,7 @@ export interface User {
 }
 
 export interface Recipe {
-  id: number;
+  id?: number;
   title: string;
   description: string;
   ingredients: Record<string, string>; // property with key and value

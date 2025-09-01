@@ -256,9 +256,10 @@ https://github.com/DanielGodoyGalindo */
 }
 
 .recipe_comment {
-  background-color: lightyellow;
+  background: linear-gradient(325deg, rgba(255, 255, 255, 1) 0%, rgba(255, 246, 176, 1) 100%);
   padding: 1rem;
-  border: 1px solid black;
+  border: 0px solid black;
+  border-radius: 20px;
   margin-bottom: 2rem;
 }
 
@@ -292,5 +293,22 @@ https://github.com/DanielGodoyGalindo */
   button {
     background: white;
     cursor: pointer;
+  }
+}
+
+#steps_container {
+  background: whitesmoke;
+  border: 1px dotted black;
+  padding: 20px;
+  width: 50%;
+
+  h3 {
+    margin-top: 0rem
+  }
+
+  ol {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

@@ -66,7 +66,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
   }, [id]);
 
   const handleDelete = async () => {
-    if (recipe) {
+    if (recipe?.id !== undefined) {
       await onDelete(recipe.id);
       navigate("/");
     }
@@ -142,6 +142,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 
       {/* Steps */}
       <div id="steps_container">
+        <h3 style={{ textAlign: "center" }}>Pasos</h3>
         <ol>
           {steps.map((step) => (
             <li key={step.position}>
