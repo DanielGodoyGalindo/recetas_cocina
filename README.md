@@ -15,7 +15,7 @@ Aplicación web desarrollada con React + Flask para la gestión de recetas de co
 </p>
 
 ### Imágenes
-![Captura de la App](public\img\github_sample.jpg)
+![Captura de la App](public/img/github_sample.jpg)
 
 ### Base de datos
 Utiliza MySQL como motor de base de datos para guardar las recetas y los usuarios. Dentro de cada receta se guardan los ingredientes como un objeto JSON pero en texto plano, para luego construir objectos y acceder a sus propiedades.
