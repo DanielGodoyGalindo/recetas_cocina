@@ -34,7 +34,7 @@ function Recipes() {
           }
         })
         const data = await res.json();
-        setFavorites(data);
+        Array.isArray(data) ? setFavorites(data) : setFavorites([data]); // Ensure data as array
       } catch (e) {
         console.log(`Error cargando favoritos: ${e}`);
       }
@@ -63,16 +63,19 @@ function Recipes() {
 
   return (
     <div>
-      {/* Every time the user types something, handleSearch is executed */}
       <RecipeSearchBar onSearch={handleSearch} />
       <ul>
-        {filteredRecipes.map((recipe) => (
-          <Link to={`/${recipe.id}`}>
-            <li key={recipe.id}>
-              <strong>{recipe.title}</strong> por {recipe.created_by}
-            </li>
-          </Link>
-        ))}
+        {filteredRecipes.map((recipe) => {
+          const isFavorite = favorites.some(fav => fav.id === recipe.id);
+          return (
+            <Link key={recipe.id} to={`/${recipe.id}`}>
+              <li>
+                <strong>{recipe.title}</strong> por {recipe.created_by}{" "}
+                {isFavorite && "⭐"}
+              </li>
+            </Link>
+          );
+        })}
       </ul>
     </div>
   );
