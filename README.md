@@ -46,5 +46,5 @@ Se utiliza para la autenticación del usuario, guardando el token durente la ses
 Los usuarios puede dejar un comentario y una valoración en cada una de las recetas. Un usuario no puede votarse a si mísmo y sólo puede dejar un comentario por receta. Cuando se visualiza una receta, aparecen todos los comentarios de los usuarios.
 
 ### ToDo
-pasos en recetas --> Mejorar los estilos de los pasos
-añadir botón para compartir receta (incluir toda la info de la receta)
+* añadir funcionalidad de guardar los favoritos de cada usuario (crear nueva tabla para guardarlos asociados a la id de cada usuario. Añadir un icono para añadir o quitar de favoritos en la lista de recetas de cada usuario. El icono aparecerá cuando se ponga el ratón sobre el nombre de la receta cuando no sea favorito y de color amarillo junto al nombre de la receta cuando esté en favoritos)
+* añadir botón para compartir receta (incluir toda la info de la receta)

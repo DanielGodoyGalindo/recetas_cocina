@@ -319,7 +319,9 @@ def login():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT password, role FROM users WHERE username=%s", (username,))
+    cursor.execute(
+        "SELECT id, password, role FROM users WHERE username=%s", (username,)
+    )
     result = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -327,17 +329,20 @@ def login():
     if not result:
         return jsonify({"msg": "Credenciales inválidas"}), 401
 
-    db_password, db_role = result
+    user_id, db_password, db_role = result
 
     if isinstance(db_password, str):
         db_password = db_password.encode("utf-8")
 
     if bcrypt.checkpw(password.encode("utf-8"), db_password):
         token = create_access_token(
-            identity=str(username), additional_claims={"role": db_role}
+            identity=user_id, additional_claims={"role": db_role}
         )
         return jsonify(
-            {"access_token": token, "user": {"username": username, "role": db_role}}
+            {
+                "access_token": token,
+                "user": {"id": user_id, "username": username, "role": db_role},
+            }
         ), 200
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
@@ -380,8 +385,6 @@ def create_user():
 
 
 # Recipe Steps
-
-
 @recipes_bp.route("/api/recipes/<int:recipe_id>/steps", methods=["GET"])
 def get_recipe_steps(recipe_id):
     conn = get_db_connection()
@@ -402,3 +405,63 @@ def get_recipe_steps(recipe_id):
     conn.close()
 
     return jsonify(steps)
+
+
+# User's favorite recipes
+@recipes_bp.route("/api/recipes/favorites", methods=["POST"])
+@jwt_required()
+def add_favorite():
+    user_id = get_jwt_identity()
+    recipe_id = request.json.get("recipe_id")
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        "INSERT INTO user_favorites (user_id, recipe_id) VALUES (%s, %s)",
+        (user_id, recipe_id),
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Receta añadida a favoritos"}), 201
+
+
+@recipes_bp.route("/api/recipes/favorites/<int:recipe_id>", methods=["DELETE"])
+@jwt_required()
+def remove_favorite(recipe_id):
+    user_id = get_jwt_identity()
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        "DELETE FROM user_favorites WHERE user_id = %s AND recipe_id = %s",
+        (user_id, recipe_id),
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Recipe removed from favorites"}), 200
+
+
+@recipes_bp.route("/api/recipes/favorites", methods=["GET"])
+@jwt_required()
+def get_favorites():
+    user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT r.id, r.title, r.created_by
+        FROM recipes r
+        INNER JOIN user_favorites uf ON r.id = uf.recipe_id
+        WHERE uf.user_id = %s
+        """,
+        (user_id,),
+    )
+    favorites = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return jsonify(favorites), 200

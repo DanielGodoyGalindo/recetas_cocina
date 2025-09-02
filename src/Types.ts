@@ -1,4 +1,5 @@
 // Intefaces that are used in the App to define properties and data types for the objects
+// 
 
 // E.g User objects contains id property that has a number data type
 export interface User {
@@ -32,4 +33,10 @@ export interface Step {
     position: number;
     instruction: string;
     duration_min: number;
+}
+
+export interface Favorite {
+  id: number;
+  user_id: number;
+  recipe_id: number;
 }

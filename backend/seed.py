@@ -68,6 +68,17 @@ CREATE TABLE recipe_steps (
 )
 """)
 
+# favorites table
+cursor.execute("""
+CREATE TABLE user_favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    recipe_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+)
+""")
+
 # Personal project developed by Daniel Godoy
 # https://github.com/DanielGodoyGalindo
 
@@ -133,7 +144,6 @@ recipes = [
     },
 ]
 
-# Insertar recetas con ingredientes en JSON
 # insert recipes from recipes array
 for recipe in recipes:
     cursor.execute(

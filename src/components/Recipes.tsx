@@ -2,10 +2,15 @@ import { useEffect, useState } from 'react';
 import RecipeSearchBar from "./RecipeSearchBar.tsx";
 import { Recipe } from "../Types";
 import { Link } from 'react-router-dom'; // A progressively enhanced <a href> wrapper to enable navigation with client-side routing.
+import { useUser } from './UserContext.tsx';
 
 function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
+  const [favorites, setFavorites] = useState<Recipe[]>([]);
+  const { user, token } = useUser();
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -18,8 +23,27 @@ function Recipes() {
         console.error("Error cargando recetas:", err);
       }
     };
+
+    const fetchFavorites = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/recipes/favorites`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          }
+        })
+        const data = await res.json();
+        setFavorites(data);
+      } catch (e) {
+        console.log(`Error cargando favoritos: ${e}`);
+      }
+    };
     fetchRecipes();
+    fetchFavorites();
   }, []);
+
+  console.log(favorites);
 
   // Returns any item found that matches the user input string
   const handleSearch = (searchTerm: string) => {
@@ -43,9 +67,11 @@ function Recipes() {
       <RecipeSearchBar onSearch={handleSearch} />
       <ul>
         {filteredRecipes.map((recipe) => (
-          <Link to={`/${recipe.id}`}><li key={recipe.id}>
-            <strong>{recipe.title}</strong> por {recipe.created_by}
-          </li></Link>
+          <Link to={`/${recipe.id}`}>
+            <li key={recipe.id}>
+              <strong>{recipe.title}</strong> por {recipe.created_by}
+            </li>
+          </Link>
         ))}
       </ul>
     </div>
