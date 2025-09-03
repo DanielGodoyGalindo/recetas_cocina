@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "./BackButton.tsx";
 import { Recipe, Comment, Step } from "../Types";
 import { useUser } from "./UserContext.tsx";
+import AddToFavButton from "./AddToFavButton.tsx";
 
 interface RecipeDetailProps {
   onDelete: (recipeId: number) => Promise<void>;
@@ -53,7 +54,6 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
       try {
         const res = await fetch(`http://localhost:5000/api/recipes/${id}/steps`);
         const data = await res.json();
-        console.log("Steps desde backend:", data);
         setSteps(data);
       } catch (e) {
         console.log(`Error obteniendo los pasos de la receta: ${e}`);
@@ -126,7 +126,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
             <p>No se han añadido ingredientes.</p>
           )}
 
-          {/* Edit / Delete buttons */}
+          {/* Buttons */}
           <div className="recipe_buttons">
             {user && (user.role === "admin" || user.username === recipe.created_by) && (
               <>
@@ -134,7 +134,9 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
                 <button onClick={handleDelete}>🗑️ Eliminar</button>
               </>
             )}
+            <AddToFavButton />
           </div>
+
         </div>
 
         <img src={recipe.imageUrl} alt={recipe.title} className="image_sample" />

@@ -8,7 +8,7 @@ function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
   const [favorites, setFavorites] = useState<Recipe[]>([]);
-  const { user, token } = useUser();
+  const { token } = useUser();
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 
@@ -41,11 +41,12 @@ function Recipes() {
     };
     fetchRecipes();
     fetchFavorites();
-  }, []);
+  }, [token]);
 
   console.log(favorites);
 
   // Returns any item found that matches the user input string
+  // Matches are by recipe name, by ingredient or by creator
   const handleSearch = (searchTerm: string) => {
     const filtered = recipes.filter(recipe => {
       const nameMatch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase());

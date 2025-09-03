@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import (
@@ -12,6 +13,8 @@ from routing import recipes_bp  # import Blueprint object
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "clave-super-secreta"
+# https://flask-jwt-extended.readthedocs.io/en/stable/refreshing_tokens.html
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
 
 CORS(app)
 jwt = JWTManager(app)  # JSON Web Token
