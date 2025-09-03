@@ -35,7 +35,7 @@ function CreateUserForm() {
     };
 
     return (
-        <div>
+        <div id="new_user_form">
             <h2>Crear nuevo usuario</h2>
             <form onSubmit={handleSubmit}>
                 <label htmlFor="name">Nombre:</label>

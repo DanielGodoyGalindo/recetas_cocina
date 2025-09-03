@@ -78,6 +78,7 @@ function Recipes() {
           );
         })}
       </ul>
+      <p id="recipes_user_information">(Las recetas favoritas aparecen marcadas con una estrella)</p>
     </div>
   );
 }
