@@ -3,6 +3,7 @@ import RecipeSearchBar from "./RecipeSearchBar.tsx";
 import { Recipe } from "../Types";
 import { Link } from 'react-router-dom'; // A progressively enhanced <a href> wrapper to enable navigation with client-side routing.
 import { useUser } from './UserContext.tsx';
+import { apiFetch } from "../services/Api.ts";
 
 function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -15,8 +16,7 @@ function Recipes() {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/recipes");
-        const data = await res.json();
+        const data = await apiFetch("/api/recipes");
         setRecipes(data); // not filtered recipes to to show when there's nothing typed
         setFilteredRecipes(data);
       } catch (err) {
@@ -26,21 +26,22 @@ function Recipes() {
 
     const fetchFavorites = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/recipes/favorites`, {
+        const data = await apiFetch(`/api/recipes/favorites`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           }
         })
-        const data = await res.json();
         Array.isArray(data) ? setFavorites(data) : setFavorites([data]); // Ensure data as array
       } catch (e) {
         console.log(`Error cargando favoritos: ${e}`);
       }
     };
     fetchRecipes();
-    fetchFavorites();
+    if (token) {
+      fetchFavorites();
+    }
   }, [token]);
 
   console.log(favorites);

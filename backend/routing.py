@@ -442,7 +442,7 @@ def remove_favorite(recipe_id):
     cursor.close()
     conn.close()
 
-    return jsonify({"message": "Recipe removed from favorites"}), 200
+    return jsonify({"message": "Receta eliminada de favoritos"}), 200
 
 
 @recipes_bp.route("/api/recipes/favorites", methods=["GET"])

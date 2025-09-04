@@ -1,11 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useUser } from "./UserContext.tsx";
+import { apiFetch } from "../services/Api.ts";
 
 function AddToFavButton() {
     const { id } = useParams<{ id: string }>(); // get recipe id from url
     const { token } = useUser();
 
-    const handleClick = async () => {
+    const handleClickAdd = async () => {
         try {
             // Token check
             if (!token) {
@@ -29,14 +30,30 @@ function AddToFavButton() {
                 return;
             }
             alert(`${data.message}`);
-            
+
         } catch (e) {
             console.error(`Error añadiendo la receta a favoritos: ${e}`);
         }
     };
 
+    const handleClickDelete = () => {
+        apiFetch(`/api/recipes/favorites/${id}`, {
+            method: "DELETE",
+            body: JSON.stringify({ recipe_id: id }),
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then(data => alert(`${data.message || "Receta eliminada de favoritos"}`))
+            .catch(e => console.error("Error quitando favorito:", e))
+    }
+
     return (
-        <button type="button" onClick={handleClick}>❤️ Añadir a favoritos</button>
+        <div>
+            <button type="button" onClick={handleClickAdd}>❤️ Añadir a favoritos</button>
+            <button type="button" onClick={handleClickDelete}>❌ Quitar de favoritos</button>
+        </div>
     );
 }
 
