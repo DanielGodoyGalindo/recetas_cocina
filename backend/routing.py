@@ -93,12 +93,12 @@ def get_comments(recipe_id):
 @recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["POST"])
 @jwt_required()
 def add_comment(recipe_id):
-    current_user = get_jwt_identity()  # username del usuario autenticado
+    current_user_id = get_jwt_identity()  # devuelve el user_id del token
     data = request.get_json()
     text_comment = data.get("text_comment")
     vote = data.get("vote")
 
-    # validate
+    # Validación
     if not text_comment:
         return jsonify({"error": "El comentario es obligatorio"}), 400
 
@@ -108,37 +108,40 @@ def add_comment(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
+    # Obtener la receta
     cursor.execute("SELECT created_by FROM recipes WHERE id=%s", (recipe_id,))
     recipe = cursor.fetchone()
-
     if not recipe:
         cursor.close()
         conn.close()
         return jsonify({"error": "Receta no encontrada"}), 404
 
-    # Creator can't leave comment in its own recipe
-    if recipe["created_by"] == current_user:
-        cursor.close()
-        conn.close()
-        return jsonify({"error": "No puedes comentar tu propia receta"}), 403
-
-    cursor.execute("SELECT id FROM users WHERE username=%s", (current_user,))
+    # Obtener username del usuario autenticado
+    cursor.execute("SELECT username FROM users WHERE id=%s", (current_user_id,))
     user_row = cursor.fetchone()
     if not user_row:
         cursor.close()
         conn.close()
         return jsonify({"error": "Usuario no encontrado"}), 404
 
-    user_id = user_row["id"]
+    username = user_row["username"]
 
-    # Insert comment
+    # El creador no puede comentar su propia receta
+    if recipe["created_by"] == username:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "No puedes comentar tu propia receta"}), 403
+
+    # Insertar comentario
     cursor.execute(
         "INSERT INTO comments (text_comment, vote, recipe_id, user_id) VALUES (%s, %s, %s, %s)",
-        (text_comment, vote, recipe_id, user_id),
+        (text_comment, vote, recipe_id, current_user_id),
     )
     conn.commit()
 
     comment_id = cursor.lastrowid
+
+    # Obtener el comentario insertado junto con el username
     cursor.execute(
         "SELECT c.id, c.text_comment, c.vote, u.username "
         "FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = %s",

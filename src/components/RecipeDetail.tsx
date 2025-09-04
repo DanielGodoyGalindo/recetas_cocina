@@ -158,6 +158,10 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         </span>
       </div>
 
+      <div id="export_pdf_container">
+        <p>Exportar a PDF</p>
+      </div>
+
       {/* Comments */}
       <div id="comments_container">
         <h3>Comentarios</h3>

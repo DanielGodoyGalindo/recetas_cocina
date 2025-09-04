@@ -329,3 +329,10 @@ https://github.com/DanielGodoyGalindo */
     gap: 1rem;
   }
 }
+
+#export_pdf_container {
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
