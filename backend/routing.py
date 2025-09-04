@@ -465,3 +465,22 @@ def get_favorites():
     conn.close()
 
     return jsonify(favorites), 200
+
+
+@recipes_bp.route("/api/recipes/favorites/<int:recipe_id>/check", methods=["GET"])
+@jwt_required()
+def check_favorite(recipe_id):
+    user_id = get_jwt_identity()
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT 1 FROM user_favorites WHERE user_id = %s AND recipe_id = %s",
+        (user_id, recipe_id),
+    )
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    is_favorite = bool(result)
+    return jsonify({"is_favorite": is_favorite}), 200

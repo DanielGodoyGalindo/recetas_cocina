@@ -1,40 +1,45 @@
 import { useParams } from "react-router-dom";
 import { useUser } from "./UserContext.tsx";
 import { apiFetch } from "../services/Api.ts";
+import { useEffect, useState } from "react";
+
 
 function AddToFavButton() {
     const { id } = useParams<{ id: string }>(); // get recipe id from url
     const { token } = useUser();
+    const [isFavorite, setIsFavorite] = useState(false);
 
-    const handleClickAdd = async () => {
-        try {
-            // Token check
-            if (!token) {
-                alert("No hay token, el usuario no está autenticado");
-                return;
-            }
-            // Call backend with recipe id
-            const response = await fetch("http://localhost:5000/api/recipes/favorites", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ recipe_id: id }),
-            });
+    useEffect(() => {
+        if (!token) return;
+        apiFetch(`/api/recipes/favorites/${id}/check`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then((data) => setIsFavorite(data.is_favorite))
+            .catch((e) => console.error(e));
+    }, [id, token]);
 
-            // Getting response from backend
-            const data = await response.json();
-            if (!response.ok) {
-                console.error("Error al añadir favorito:", data.msg || data.message);
-                return;
-            }
-            alert(`${data.message}`);
-
-        } catch (e) {
-            console.error(`Error añadiendo la receta a favoritos: ${e}`);
+    const handleClickAdd = () => {
+        // Token check
+        if (!token) {
+            alert("No hay token, el usuario no está autenticado");
+            return;
         }
-    };
+        // Call backend with recipe id
+        apiFetch("/api/recipes/favorites", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ recipe_id: id }),
+        })
+            // Getting response from backend
+            .then(() => setIsFavorite(true))
+            .catch((e) => console.error(e));
+    }
 
     const handleClickDelete = () => {
         apiFetch(`/api/recipes/favorites/${id}`, {
@@ -45,16 +50,22 @@ function AddToFavButton() {
                 Authorization: `Bearer ${token}`,
             },
         })
-            .then(data => alert(`${data.message || "Receta eliminada de favoritos"}`))
+            .then(() => {
+                setIsFavorite(false);
+            })
             .catch(e => console.error("Error quitando favorito:", e))
     }
 
+    // Show appropriate button
     return (
         <div>
-            <button type="button" onClick={handleClickAdd}>❤️ Añadir a favoritos</button>
-            <button type="button" onClick={handleClickDelete}>❌ Quitar de favoritos</button>
+            {isFavorite ? (
+                <button type="button" onClick={handleClickDelete}>❌ Quitar de favoritos</button>
+            ) : (
+                <button type="button" onClick={handleClickAdd}>❤️ Añadir a favoritos</button>
+            )}
         </div>
     );
-}
+};
 
 export default AddToFavButton;
