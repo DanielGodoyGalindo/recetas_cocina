@@ -4,7 +4,7 @@ import BackButton from "./BackButton.tsx";
 import { Recipe, Comment, Step } from "../Types";
 import { useUser } from "./UserContext.tsx";
 import AddToFavButton from "./AddToFavButton.tsx";
-import ShareOnWhatsAppButton from "./WhatsappShareButton.tsx";
+import ShareButtons from "./ShareButtons.tsx";
 
 interface RecipeDetailProps {
   onDelete: (recipeId: number) => Promise<void>;
@@ -163,7 +163,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
       </div>
 
       <div>
-        <ShareOnWhatsAppButton recipe={recipe} />
+        <ShareButtons recipe={recipe} />
       </div>
 
       {/* Comments */}
