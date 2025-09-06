@@ -169,7 +169,6 @@ def create_recipe():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. Insertar receta
     cursor.execute(
         """
         INSERT INTO recipes (title, description, ingredients, imageUrl, created_by)
@@ -186,10 +185,9 @@ def create_recipe():
 
     recipe_id = cursor.lastrowid
 
-    # 2. Insertar steps en minutos
     for i, step in enumerate(steps, start=1):
         instruction = step.get("instruction")
-        duration_min = step.get("duration_min")  # directamente en minutos
+        duration_min = step.get("duration_min")
 
         cursor.execute(
             """

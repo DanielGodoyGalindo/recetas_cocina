@@ -5,6 +5,12 @@ Aplicación web desarrollada con React + Flask para la gestión de recetas de co
 <!-- Personal project developed by Daniel Godoy -->
 <!-- https://github.com/DanielGodoyGalindo -->
 
+## Instalación
+git clone https://github.com/DanielGodoyGalindo/recetas_cocina.git
+npm install
+pip install -r requirements.txt
+
+
 ## Herramientas y lenguajes utilizados:
 <p style="display:flex; justify-content:center;gap:2rem;">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" width="60"/>
@@ -47,5 +53,4 @@ Los usuarios puede dejar un comentario y una valoración en cada una de las rece
 Cada usuario puede marcar sus recetas favoritas, de modo que cuando esté logueado se muestre ⭐ en las recetas que ha marcado como favoritas en el listado de todas las recetas. Dentro de los detalles de cada receta, el usuario puede añadir / quitar de sus favoritos, de modo que se muestre un botón u otro, dependiendo del estado favorito de la receta. El componente se renderiza cada vez que el usuario añade / elimina de sus favoritos.
 
 ### ToDo
-* añadir botón para compartir receta (incluir toda la info de la receta)
 * cuando se desconecta el usuario, borrar el mensaje de bienvenida

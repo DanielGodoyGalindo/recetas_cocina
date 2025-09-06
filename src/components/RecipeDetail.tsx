@@ -4,6 +4,7 @@ import BackButton from "./BackButton.tsx";
 import { Recipe, Comment, Step } from "../Types";
 import { useUser } from "./UserContext.tsx";
 import AddToFavButton from "./AddToFavButton.tsx";
+import ShareOnWhatsAppButton from "./WhatsappShareButton.tsx";
 
 interface RecipeDetailProps {
   onDelete: (recipeId: number) => Promise<void>;
@@ -11,9 +12,11 @@ interface RecipeDetailProps {
 
 function RecipeDetail({ onDelete }: RecipeDetailProps) {
 
+  // Hooks
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, token } = useUser();
+  
   // States
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -21,6 +24,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
   const [newVote, setNewVote] = useState(5);
   const [steps, setSteps] = useState<Step[]>([]);
 
+  // Variables
   const isCreator = user?.username === recipe?.created_by;
   const isAdmin = user?.role === "admin";
 
@@ -130,8 +134,8 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
           <div className="recipe_buttons">
             {user && (user.role === "admin" || user.username === recipe.created_by) && (
               <>
-                <button onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>✏️ Editar</button>
-                <button onClick={handleDelete}>🗑️ Eliminar</button>
+                <button className="recipe_button" onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>✏️ Editar</button>
+                <button className="recipe_button" onClick={handleDelete}>🗑️ Eliminar</button>
               </>
             )}
             <AddToFavButton />
@@ -158,8 +162,8 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
         </span>
       </div>
 
-      <div id="export_pdf_container">
-        <p>Exportar a PDF</p>
+      <div>
+        <ShareOnWhatsAppButton recipe={recipe} />
       </div>
 
       {/* Comments */}

@@ -60,9 +60,9 @@ function AddToFavButton() {
     return (
         <div>
             {isFavorite ? (
-                <button type="button" onClick={handleClickDelete}>❌ Quitar de favoritos</button>
+                <button className="recipe_button" type="button" onClick={handleClickDelete}>❌ Quitar de favoritos</button>
             ) : (
-                <button type="button" onClick={handleClickAdd}>❤️ Añadir a favoritos</button>
+                <button className="recipe_button" type="button" onClick={handleClickAdd}>❤️ Añadir a favoritos</button>
             )}
         </div>
     );
