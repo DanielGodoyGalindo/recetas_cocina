@@ -110,6 +110,10 @@ https://github.com/DanielGodoyGalindo */
 
 #login_form {
   text-align: center;
+  h2{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #4a4a4a
+  }
 
   div {
     display: flex;
@@ -118,13 +122,17 @@ https://github.com/DanielGodoyGalindo */
 
     input {
       background: white;
+      border: 0;
+      padding: 0.4rem;
+      margin: 0;
+      border-radius: 5px;
     }
   }
-
   button {
     margin-top: 1rem;
     background: white;
     padding: 0.5rem;
+    cursor: pointer;
   }
 }
 
@@ -331,7 +339,7 @@ https://github.com/DanielGodoyGalindo */
   }
 }
 
-#recipe_share_buttons{
+#recipe_share_buttons {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;

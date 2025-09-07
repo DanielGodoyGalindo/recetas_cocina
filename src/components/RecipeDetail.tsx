@@ -122,7 +122,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
             <ul>
               {Object.entries(recipe.ingredients).map(([name, quantity]) => (
                 <li key={name}>
-                  {quantity} {name}
+                  {name}: {quantity} 
                 </li>
               ))}
             </ul>

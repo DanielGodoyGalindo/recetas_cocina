@@ -485,3 +485,10 @@ def check_favorite(recipe_id):
 
     is_favorite = bool(result)
     return jsonify({"is_favorite": is_favorite}), 200
+
+
+# Translate recipes
+# https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-translate
+# https://cloud.google.com/python/docs/reference/translate/latest/google.cloud.translate_v2.client.Client
+
+

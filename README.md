@@ -52,5 +52,10 @@ Los usuarios puede dejar un comentario y una valoración en cada una de las rece
 ### Recetas favoritas
 Cada usuario puede marcar sus recetas favoritas, de modo que cuando esté logueado se muestre ⭐ en las recetas que ha marcado como favoritas en el listado de todas las recetas. Dentro de los detalles de cada receta, el usuario puede añadir / quitar de sus favoritos, de modo que se muestre un botón u otro, dependiendo del estado favorito de la receta. El componente se renderiza cada vez que el usuario añade / elimina de sus favoritos.
 
+### Recetas favoritas
+Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, Telegram y X. El usuario puede enviar así la receta autenticandose en cada una de estas plataformas.
+
 ### ToDo
-* cuando se desconecta el usuario, borrar el mensaje de bienvenida
+Incluir API Google Translate
+https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-translate
+https://cloud.google.com/python/docs/reference/translate/latest/google.cloud.translate_v2.client.Client

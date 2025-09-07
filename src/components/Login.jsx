@@ -13,6 +13,8 @@ function Login() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        localStorage.clear("token");
+        localStorage.clear("user");
 
         try {
             const res = await fetch("http://localhost:5000/login", {

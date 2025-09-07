@@ -14,7 +14,7 @@ function Layout() {
     return (
         <div>
             <header>
-                <h1 id='main_title'>Mi App de recetas</h1>
+                <h1 id='main_title'>Mis recetas favoritas</h1>
                 {/* if token then render the component */}
                 {/* if not, render create user button */}
                 {token ? <LogoutButton /> : <CreateUserButton />}
