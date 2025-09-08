@@ -9,12 +9,12 @@ function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
-    const { login } = useUser();
+    const { login, logout } = useUser();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        localStorage.clear("token");
-        localStorage.clear("user");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
 
         try {
             const res = await fetch("http://localhost:5000/login", {
@@ -23,13 +23,16 @@ function Login() {
                 body: JSON.stringify({ username, password }),
             });
 
+            if (res.status === 401) {
+                logout();
+                throw new Error("Sesión expirada");
+            }
+
             const data = await res.json();
 
             if (res.ok) {
                 const loggedUser = { username, role: data.user.role };
-
                 login(data.access_token, loggedUser);
-
                 navigate("/");
             } else {
                 alert(data.msg || "Error al iniciar sesión");

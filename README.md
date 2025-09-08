@@ -56,6 +56,8 @@ Cada usuario puede marcar sus recetas favoritas, de modo que cuando esté loguea
 Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, Telegram y X. El usuario puede enviar así la receta autenticandose en cada una de estas plataformas.
 
 ### ToDo
-Incluir API Google Translate
+* Incluir API Google Translate
 https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-translate
 https://cloud.google.com/python/docs/reference/translate/latest/google.cloud.translate_v2.client.Client
+
+* Componente ventanas de información para avisar al usurio
