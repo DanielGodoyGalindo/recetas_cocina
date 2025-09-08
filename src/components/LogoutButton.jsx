@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "../components/UserContext.tsx";
+import { useUser } from "./Contexts.tsx";
 
 function LogoutButton() {
     const navigate = useNavigate();

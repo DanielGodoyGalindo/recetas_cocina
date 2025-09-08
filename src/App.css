@@ -110,7 +110,8 @@ https://github.com/DanielGodoyGalindo */
 
 #login_form {
   text-align: center;
-  h2{
+
+  h2 {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     color: #4a4a4a
   }
@@ -128,6 +129,7 @@ https://github.com/DanielGodoyGalindo */
       border-radius: 5px;
     }
   }
+
   button {
     margin-top: 1rem;
     background: white;
@@ -349,4 +351,29 @@ https://github.com/DanielGodoyGalindo */
 
 #recipe_share_buttons::before {
   content: "Compartir receta:";
+}
+
+/* Notifications */
+.notification {
+  position: fixed;
+  top: 1.25rem;
+  /* 5 = 1.25rem */
+  right: 1.25rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+}
+
+.notification.success {
+  background-color: #22c55e;
+}
+
+.notification.error {
+  background-color: #ef4444;
+}
+
+.notification.info {
+  background-color: #3b82f6;
 }

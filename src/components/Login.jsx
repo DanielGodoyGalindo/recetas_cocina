@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../components/UserContext.tsx";
+import { useUser } from "./Contexts.tsx";
 
 // Personal project developed by Daniel Godoy
 // https://github.com/DanielGodoyGalindo

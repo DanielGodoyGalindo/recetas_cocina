@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import RecipeSearchBar from "./RecipeSearchBar.tsx";
 import { Recipe } from "../Types";
 import { Link } from 'react-router-dom'; // A progressively enhanced <a href> wrapper to enable navigation with client-side routing.
-import { useUser } from './UserContext.tsx';
+import { useUser } from './Contexts.tsx';
 import { apiFetch } from "../services/Api.ts";
 
 function Recipes() {

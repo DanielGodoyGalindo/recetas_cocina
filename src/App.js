@@ -8,11 +8,12 @@ import CreateUserForm from './components/CreateUserForm.tsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout.tsx';
 import Login from "./components/Login";
-import { useUser } from "./components/UserContext.tsx";
+import { useUser, useNotification } from "./components/Contexts.tsx";
 
 function App() {
 
   const { token, user, login, logout } = useUser();
+  const { alert } = useNotification();
 
 
   // Create recipe
@@ -30,7 +31,7 @@ function App() {
       const data = await res.json();
 
       if (res.status === 401) {
-        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "info");
         logout();
         return;
       }
@@ -39,10 +40,10 @@ function App() {
         throw new Error(data.msg || "Error al crear receta");
       }
 
-      alert("Receta creada correctamente!");
+      alert("Receta creada con éxito!", "success");
     } catch (err) {
       console.error("Error capturado:", err);
-      alert(`No se pudo crear la receta: ${err.message}`);
+      alert(`No se pudo crear la receta: ${err.message}`, "error");
     }
   };
 
@@ -61,7 +62,7 @@ function App() {
       const data = await res.json();
 
       if (res.status === 401) {
-        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "info");
         logout();
         return;
       }
@@ -69,10 +70,10 @@ function App() {
       if (!res.ok) {
         throw new Error(data.msg || "Error al actualizar receta");
       }
-      alert("Receta actualizada correctamente!");
+      alert("Receta actualizada correctamente!", "success");
     } catch (err) {
       console.error("Error capturado:", err);
-      alert(`No se pudo actualizar la receta: ${err.message}`);
+      alert(`No se pudo actualizar la receta: ${err.message}`, "error");
     }
   };
 
@@ -89,7 +90,7 @@ function App() {
       const data = await res.json();
 
       if (res.status === 401) {
-        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
+        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "info");
         logout();
         return;
       }
@@ -98,10 +99,10 @@ function App() {
         throw new Error(data.msg || "Error al eliminar la receta");
       }
 
-      alert("Receta eliminada con éxito ✅");
+      alert("Receta eliminada con éxito", "success");
     } catch (err) {
       console.error("Error capturado:", err);
-      alert(`No se pudo eliminar la receta: ${err.message}`);
+      alert(`No se pudo eliminar la receta: ${err.message}`, "error");
     }
   };
 

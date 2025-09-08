@@ -32,7 +32,7 @@ pip install -r requirements.txt
 > Para mantener el comopnente sincronizado con elementos externos como por ejemplo formularios que obtienen datos cuando se edita una receta.
 
 > #### *useContext*
-> Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app.
+> Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app. También se incluye un contexto para enviar alertas al usuario indicandole información acerca de los eventos que se van ejecutando (receta creada, editada o eliminada con exito / error, etc...)
 
 ### Base de datos
 Utiliza MySQL como motor de base de datos para guardar las recetas y los usuarios. Dentro de cada receta se guardan los ingredientes como un objeto JSON pero en texto plano, para luego construir objectos y acceder a sus propiedades.
@@ -56,8 +56,4 @@ Cada usuario puede marcar sus recetas favoritas, de modo que cuando esté loguea
 Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, Telegram y X. El usuario puede enviar así la receta autenticandose en cada una de estas plataformas.
 
 ### ToDo
-* Incluir API Google Translate
-https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-translate
-https://cloud.google.com/python/docs/reference/translate/latest/google.cloud.translate_v2.client.Client
-
 * Componente ventanas de información para avisar al usurio

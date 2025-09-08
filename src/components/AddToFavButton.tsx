@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useUser } from "./UserContext.tsx";
+import { useUser } from "./Contexts.tsx";
 import { apiFetch } from "../services/Api.ts";
 import { useEffect, useState } from "react";
 

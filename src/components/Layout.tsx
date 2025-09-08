@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom";
 import LogoutButton from "./LogoutButton";
 import CreateUserButton from "./CreateUserButton.tsx";
-import { useUser } from "./UserContext.tsx"
+import { useUser, useNotification } from "./Contexts.tsx"
+import Notification from "./Notification.tsx";
 
 // Personal project developed by Daniel Godoy
 // https://github.com/DanielGodoyGalindo
@@ -10,6 +11,7 @@ import { useUser } from "./UserContext.tsx"
 function Layout() {
 
     const { token } = useUser();
+    const { notification } = useNotification();
 
     return (
         <div>
@@ -20,6 +22,7 @@ function Layout() {
                 {token ? <LogoutButton /> : <CreateUserButton />}
             </header>
             <Outlet /> {/* Renders a child/s defined in the routing configuration */}
+            {notification && (<Notification message={notification.message} type={notification.type} />)}
         </div>
     )
 }
