@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "./Contexts.tsx";
+import { useUser, useNotification } from "./Contexts.tsx";
+
 
 // Personal project developed by Daniel Godoy
 // https://github.com/DanielGodoyGalindo
@@ -10,6 +11,8 @@ function Login() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
     const { login, logout } = useUser();
+    const { alert } = useNotification();
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -35,11 +38,11 @@ function Login() {
                 login(data.access_token, loggedUser);
                 navigate("/");
             } else {
-                alert(data.msg || "Error al iniciar sesión");
+                alert(data.msg || "Error al iniciar sesión", "error");
             }
         } catch (error) {
             console.error("Error de conexión con backend:", error);
-            alert("No se pudo conectar con el servidor. Revisa que Flask esté corriendo en http://localhost:5000");
+            alert("No se pudo conectar con el servidor. Revisa que Flask esté corriendo en http://localhost:5000", "error");
         }
     };
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from "./BackButton.tsx";
 import { Recipe, Comment, Step } from "../Types";
-import { useUser } from "./Contexts.tsx";
+import { useUser, useNotification } from "./Contexts.tsx";
 import AddToFavButton from "./AddToFavButton.tsx";
 import ShareButtons from "./ShareButtons.tsx";
 
@@ -16,7 +16,8 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, token } = useUser();
-  
+  const { alert } = useNotification();
+
   // States
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -100,7 +101,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
       setNewVote(5);
     } catch (err) {
       console.error(err);
-      alert("No se pudo añadir el comentario");
+      alert("No se pudo añadir el comentario", "error");
     }
   };
 
@@ -122,7 +123,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
             <ul>
               {Object.entries(recipe.ingredients).map(([name, quantity]) => (
                 <li key={name}>
-                  {name}: {quantity} 
+                  {name}: {quantity}
                 </li>
               ))}
             </ul>

@@ -217,18 +217,19 @@ def update_recipe(recipe_id):
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT created_by FROM recipes WHERE id = %s", (recipe_id,))
+    # recipe
+    cursor.execute("SELECT * FROM recipes WHERE id = %s", (recipe_id,))
     recipe = cursor.fetchone()
-
     if not recipe:
         cursor.close()
         conn.close()
         return jsonify({"msg": "Receta no encontrada"}), 404
-
-    cursor.execute("SELECT role FROM users WHERE username=%s", (current_user,))
+    # user role
+    cursor.execute("SELECT role FROM users WHERE username=%s", (current_user["username"],))
     user_role = cursor.fetchone()
+    print("user_role")
+    print(user_role)
     role = user_role.get("role") if user_role else None
-
     if role != "admin" and recipe["created_by"] != current_user:
         cursor.close()
         conn.close()
@@ -319,30 +320,35 @@ def login():
     password = data.get("password")
 
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id, password, role FROM users WHERE username=%s", (username,)
-    )
-    result = cursor.fetchone()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+    user = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    if not result:
+    if not user:
         return jsonify({"msg": "Credenciales inválidas"}), 401
 
-    user_id, db_password, db_role = result
-
+    db_password = user["password"]
     if isinstance(db_password, str):
         db_password = db_password.encode("utf-8")
 
     if bcrypt.checkpw(password.encode("utf-8"), db_password):
         token = create_access_token(
-            identity=user_id, additional_claims={"role": db_role}
+            identity={
+                "id": user["id"],
+                "username": user["username"],
+                "role": user["role"],
+            }
         )
         return jsonify(
             {
                 "access_token": token,
-                "user": {"id": user_id, "username": username, "role": db_role},
+                "user": {
+                    "id": user["id"],
+                    "username": user["username"],
+                    "role": user["role"],
+                },
             }
         ), 200
     else:
@@ -449,7 +455,7 @@ def remove_favorite(recipe_id):
 @recipes_bp.route("/api/recipes/favorites", methods=["GET"])
 @jwt_required()
 def get_favorites():
-    user_id = get_jwt_identity()
+    user = get_jwt_identity()
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
@@ -459,7 +465,7 @@ def get_favorites():
         INNER JOIN user_favorites uf ON r.id = uf.recipe_id
         WHERE uf.user_id = %s
         """,
-        (user_id,),
+        (user["id"],),
     )
     favorites = cursor.fetchall()
     cursor.close()
@@ -485,10 +491,3 @@ def check_favorite(recipe_id):
 
     is_favorite = bool(result)
     return jsonify({"is_favorite": is_favorite}), 200
-
-
-# Translate recipes
-# https://github.com/googleapis/google-cloud-python/tree/main/packages/google-cloud-translate
-# https://cloud.google.com/python/docs/reference/translate/latest/google.cloud.translate_v2.client.Client
-
-

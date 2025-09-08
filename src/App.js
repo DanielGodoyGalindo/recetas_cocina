@@ -59,7 +59,7 @@ function App() {
         body: JSON.stringify(recipeData),
       });
 
-      const data = await res.json();
+      console.log(res.status);
 
       if (res.status === 401) {
         alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "info");
@@ -67,10 +67,16 @@ function App() {
         return;
       }
 
-      if (!res.ok) {
-        throw new Error(data.msg || "Error al actualizar receta");
+      if (res.status === 403) {
+        alert("No tienes permiso para editar esta receta", "error");
+        return;
       }
-      alert("Receta actualizada correctamente!", "success");
+
+      if (res.status === 200) {
+        const data = await res.json();
+        alert(data.msg || "Receta actualizada correctamente!", "success");
+      }
+
     } catch (err) {
       console.error("Error capturado:", err);
       alert(`No se pudo actualizar la receta: ${err.message}`, "error");

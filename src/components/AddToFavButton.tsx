@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useUser } from "./Contexts.tsx";
+import { useUser, useNotification } from "./Contexts.tsx";
 import { apiFetch } from "../services/Api.ts";
 import { useEffect, useState } from "react";
 
@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 function AddToFavButton() {
     const { id } = useParams<{ id: string }>(); // get recipe id from url
     const { token } = useUser();
+    const { alert } = useNotification();
     const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
@@ -24,7 +25,7 @@ function AddToFavButton() {
     const handleClickAdd = () => {
         // Token check
         if (!token) {
-            alert("No hay token, el usuario no está autenticado");
+            alert("No hay token, el usuario no está autenticado", "info");
             return;
         }
         // Call backend with recipe id
