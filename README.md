@@ -58,3 +58,4 @@ Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, 
 ### ToDo
 * Componente ventanas de información para avisar al usurio
 * Revisar "def add_comment(recipe_id)" porque falla
+* Comprobar que no se cierra bien la sesión cada vez que se arranca el server

@@ -87,20 +87,20 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ text_comment: newComment, vote: newVote }),
+        body: JSON.stringify({ text_comment: newComment, vote: newVote })
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Error al añadir comentario");
+        alert(data.msg, "error");
+        return;
       }
-
-      const addedComment = await res.json();
+      const addedComment = data.new_comment;
       setComments([...comments, addedComment]);
       setNewComment("");
       setNewVote(5);
+      alert(data.msg, "success");
     } catch (err) {
-      console.error(err);
       alert("No se pudo añadir el comentario", "error");
     }
   };

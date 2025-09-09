@@ -74,7 +74,7 @@ function App() {
 
       if (res.status === 200) {
         const data = await res.json();
-        alert(data.msg || "Receta actualizada correctamente!", "success");
+        alert(data.msg, "success");
       }
 
     } catch (err) {

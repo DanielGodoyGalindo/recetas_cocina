@@ -8,13 +8,17 @@ import bcrypt
 import json
 from flask import jsonify, request, Blueprint
 import mysql.connector
+from mysql.connector import IntegrityError
 
 # create Blueprint object
 # https://flask.palletsprojects.com/en/stable/blueprints/
 recipes_bp = Blueprint("recipes", __name__)
 
 
-# Routing
+### Routing ###
+
+
+# Recipes
 @recipes_bp.route("/api/recipes", methods=["GET"])
 def get_recipes():
     search = request.args.get("search", "")
@@ -61,98 +65,6 @@ def get_recipe(recipe_id):
     cursor.close()
     conn.close()
     return jsonify(recipe)
-
-
-@recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["GET"])
-def get_comments(recipe_id):
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(
-        """
-        SELECT c.id, c.text_comment, c.vote, u.username
-        FROM comments c
-        JOIN users u ON c.user_id = u.id
-        WHERE c.recipe_id = %s
-    """,
-        (recipe_id,),
-    )
-    comments = cursor.fetchall()
-    cursor.close()
-    conn.close()
-
-    if not comments:
-        return jsonify([]), 200
-
-    return jsonify(comments), 200
-
-
-# Personal project developed by Daniel Godoy
-# https://github.com/DanielGodoyGalindo
-
-
-@recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["POST"])
-@jwt_required()
-def add_comment(recipe_id):
-    current_user_id = get_jwt_identity()  # devuelve el user_id del token
-    data = request.get_json()
-    text_comment = data.get("text_comment")
-    vote = data.get("vote")
-
-    # Validación
-    if not text_comment:
-        return jsonify({"error": "El comentario es obligatorio"}), 400
-
-    if not isinstance(vote, int) or vote < 1 or vote > 5:
-        return jsonify({"error": "El voto debe estar entre 1 y 5"}), 400
-
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-
-    # Obtener la receta
-    cursor.execute("SELECT created_by FROM recipes WHERE id=%s", (recipe_id,))
-    recipe = cursor.fetchone()
-    if not recipe:
-        cursor.close()
-        conn.close()
-        return jsonify({"error": "Receta no encontrada"}), 404
-
-    # Obtener username del usuario autenticado
-    cursor.execute("SELECT username FROM users WHERE id=%s", (current_user_id,))
-    user_row = cursor.fetchone()
-    if not user_row:
-        cursor.close()
-        conn.close()
-        return jsonify({"error": "Usuario no encontrado"}), 404
-
-    username = user_row["username"]
-
-    # El creador no puede comentar su propia receta
-    if recipe["created_by"] == username:
-        cursor.close()
-        conn.close()
-        return jsonify({"error": "No puedes comentar tu propia receta"}), 403
-
-    # Insertar comentario
-    cursor.execute(
-        "INSERT INTO comments (text_comment, vote, recipe_id, user_id) VALUES (%s, %s, %s, %s)",
-        (text_comment, vote, recipe_id, current_user_id),
-    )
-    conn.commit()
-
-    comment_id = cursor.lastrowid
-
-    # Obtener el comentario insertado junto con el username
-    cursor.execute(
-        "SELECT c.id, c.text_comment, c.vote, u.username "
-        "FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = %s",
-        (comment_id,),
-    )
-    new_comment = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    return jsonify(new_comment), 201
 
 
 @recipes_bp.route("/api/recipes", methods=["POST"])
@@ -225,7 +137,9 @@ def update_recipe(recipe_id):
         conn.close()
         return jsonify({"msg": "Receta no encontrada"}), 404
     # user role
-    cursor.execute("SELECT role FROM users WHERE username=%s", (current_user["username"],))
+    cursor.execute(
+        "SELECT role FROM users WHERE username=%s", (current_user["username"],)
+    )
     user_role = cursor.fetchone()
     print("user_role")
     print(user_role)
@@ -250,7 +164,7 @@ def update_recipe(recipe_id):
     conn.commit()
     cursor.close()
     conn.close()
-    return jsonify({"msg": "Receta actualizada con éxito"}), 200
+    return jsonify({"msg": "¡¡Receta actualizada con éxito!!"}), 200
 
 
 # route to show selected recipe
@@ -258,7 +172,6 @@ def update_recipe(recipe_id):
 @jwt_required()
 def delete_recipe(recipe_id):
     current_user = get_jwt_identity()
-
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT created_by FROM recipes WHERE id = %s", (recipe_id,))
@@ -269,11 +182,13 @@ def delete_recipe(recipe_id):
         conn.close()
         return jsonify({"msg": "Receta no encontrada"}), 404
 
-    cursor.execute("SELECT role FROM users WHERE username=%s", (current_user,))
+    cursor.execute(
+        "SELECT role FROM users WHERE username=%s", (current_user["username"],)
+    )
     user_role = cursor.fetchone()
     role = user_role.get("role") if user_role else None
 
-    if role != "admin" and recipe["created_by"] != current_user:
+    if role != "admin" and recipe["created_by"] != current_user["username"]:
         cursor.close()
         conn.close()
         return jsonify({"msg": "No tienes permiso para borrar esta receta"}), 403
@@ -284,6 +199,102 @@ def delete_recipe(recipe_id):
     conn.close()
 
     return jsonify({"msg": "Receta eliminada con éxito"}), 200
+
+
+# Comments
+@recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["GET"])
+def get_comments(recipe_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT c.id, c.text_comment, c.vote, u.username
+        FROM comments c
+        JOIN users u ON c.user_id = u.id
+        WHERE c.recipe_id = %s
+    """,
+        (recipe_id,),
+    )
+    comments = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not comments:
+        return jsonify([]), 200
+
+    return jsonify(comments), 200
+
+
+# Personal project developed by Daniel Godoy
+# https://github.com/DanielGodoyGalindo
+
+
+@recipes_bp.route("/api/recipes/<int:recipe_id>/comments", methods=["POST"])
+@jwt_required()
+def add_comment(recipe_id):
+    current_user = get_jwt_identity()
+    data = request.get_json()
+    text_comment = data.get("text_comment")
+    vote = data.get("vote")
+
+    # Validation
+    if not text_comment:
+        return jsonify({"error": "El comentario es obligatorio"}), 400
+
+    if not isinstance(vote, int) or vote < 1 or vote > 5:
+        return jsonify({"error": "El voto debe estar entre 1 y 5"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM recipes WHERE id=%s", (recipe_id,))
+    recipe = cursor.fetchone()
+    if not recipe:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Receta no encontrada"}), 404
+
+    cursor.execute("SELECT username FROM users WHERE id=%s", (current_user["id"],))
+    user_row = cursor.fetchone()
+    if not user_row:
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    username = user_row["username"]
+
+    if recipe["created_by"] == username and current_user["role"] != "admin":
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "No puedes comentar tu propia receta"}), 403
+
+    try:
+        cursor.execute(
+            "INSERT INTO comments (text_comment, vote, recipe_id, user_id) VALUES (%s, %s, %s, %s)",
+            (text_comment, vote, recipe_id, current_user["id"]),
+        )
+        conn.commit()
+        comment_id = cursor.lastrowid
+        cursor.execute(
+            "SELECT c.id, c.text_comment, c.vote, u.username "
+            "FROM comments c JOIN users u ON c.user_id = u.id WHERE c.id = %s",
+            (comment_id,),
+        )
+        new_comment = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify(
+            {"msg": "¡Comentario añadido con éxito!", "new_comment": new_comment}
+        ), 201
+
+    except IntegrityError as e:
+        conn.rollback()
+        if e.errno == 1062:
+            return jsonify({"msg": "Ya has comentado esta receta"}), 400
+        else:
+            return jsonify({"msg": "Error de base de datos"}), 500
 
 
 # register and login
@@ -359,9 +370,10 @@ def login():
 @jwt_required()
 def protected():
     current_user = get_jwt_identity()
-    return jsonify({"msg": f"Hola {current_user}, estás autenticado!"})
+    return jsonify({"msg": f"Hola {current_user['username']}, estás autenticado!"})
 
 
+# Users
 @recipes_bp.route("/create-user", methods=["POST"])
 def create_user():
     data = request.get_json()
@@ -418,14 +430,14 @@ def get_recipe_steps(recipe_id):
 @recipes_bp.route("/api/recipes/favorites", methods=["POST"])
 @jwt_required()
 def add_favorite():
-    user_id = get_jwt_identity()
+    user = get_jwt_identity()
     recipe_id = request.json.get("recipe_id")
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
         "INSERT INTO user_favorites (user_id, recipe_id) VALUES (%s, %s)",
-        (user_id, recipe_id),
+        (user["id"], recipe_id),
     )
     conn.commit()
     cursor.close()
@@ -437,13 +449,13 @@ def add_favorite():
 @recipes_bp.route("/api/recipes/favorites/<int:recipe_id>", methods=["DELETE"])
 @jwt_required()
 def remove_favorite(recipe_id):
-    user_id = get_jwt_identity()
+    user = get_jwt_identity()
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
         "DELETE FROM user_favorites WHERE user_id = %s AND recipe_id = %s",
-        (user_id, recipe_id),
+        (user["id"], recipe_id),
     )
     conn.commit()
     cursor.close()
@@ -477,17 +489,17 @@ def get_favorites():
 @recipes_bp.route("/api/recipes/favorites/<int:recipe_id>/check", methods=["GET"])
 @jwt_required()
 def check_favorite(recipe_id):
-    user_id = get_jwt_identity()
+    user = get_jwt_identity()
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
         "SELECT 1 FROM user_favorites WHERE user_id = %s AND recipe_id = %s",
-        (user_id, recipe_id),
+        (user["id"], recipe_id),
     )
     result = cursor.fetchone()
     cursor.close()
     conn.close()
-
+    # return true / false
     is_favorite = bool(result)
     return jsonify({"is_favorite": is_favorite}), 200
