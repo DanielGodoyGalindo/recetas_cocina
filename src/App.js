@@ -15,7 +15,6 @@ function App() {
   const { token, user, login, logout } = useUser();
   const { alert } = useNotification();
 
-
   // Create recipe
   const handleSaveRecipe = async (recipeData) => {
     try {
@@ -37,12 +36,11 @@ function App() {
       }
 
       if (!res.ok) {
-        throw new Error(data.msg || "Error al crear receta");
+        throw new Error("Error al crear receta");
       }
 
-      alert("Receta creada con éxito!", "success");
+      alert(data.message, "success");
     } catch (err) {
-      console.error("Error capturado:", err);
       alert(`No se pudo crear la receta: ${err.message}`, "error");
     }
   };
@@ -58,8 +56,6 @@ function App() {
         },
         body: JSON.stringify(recipeData),
       });
-
-      console.log(res.status);
 
       if (res.status === 401) {
         alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "info");
@@ -84,9 +80,9 @@ function App() {
   };
 
   // Delete recipe
-  const handleDeleteRecipe = async (recipeData) => {
+  const handleDeleteRecipe = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/recipes/${recipeData.id}`, {
+      const res = await fetch(`http://localhost:5000/api/recipes/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

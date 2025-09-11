@@ -44,8 +44,6 @@ function Recipes() {
     }
   }, [token]);
 
-  console.log(favorites);
-
   // Returns any item found that matches the user input string
   // Matches are by recipe name, by ingredient or by creator
   const handleSearch = (searchTerm: string) => {

@@ -77,10 +77,9 @@ def create_recipe():
     created_by = data.get("created_by", "admin")
     ingredients = data.get("ingredients", {})
     steps = data.get("steps", [])
-
+    # database
     conn = get_db_connection()
     cursor = conn.cursor()
-
     cursor.execute(
         """
         INSERT INTO recipes (title, description, ingredients, imageUrl, created_by)
@@ -94,9 +93,7 @@ def create_recipe():
             created_by,
         ),
     )
-
     recipe_id = cursor.lastrowid
-
     for i, step in enumerate(steps, start=1):
         instruction = step.get("instruction")
         duration_min = step.get("duration_min")
@@ -108,12 +105,10 @@ def create_recipe():
         """,
             (recipe_id, i, instruction, duration_min),
         )
-
     conn.commit()
     cursor.close()
     conn.close()
-
-    return jsonify({"message": "Receta creada con éxito", "recipe_id": recipe_id}), 201
+    return jsonify({"message": "Receta creada con éxito!", "recipe_id": recipe_id}), 201
 
 
 @recipes_bp.route("/api/recipes/<int:recipe_id>", methods=["PUT"])
@@ -126,34 +121,27 @@ def update_recipe(recipe_id):
     imageUrl = data.get("imageUrl")
     ingredients = data.get("ingredients", {})
     steps = data.get("steps", [])
-
+    # database
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    # recipe
+    # get recipe
     cursor.execute("SELECT * FROM recipes WHERE id = %s", (recipe_id,))
     recipe = cursor.fetchone()
     if not recipe:
         cursor.close()
         conn.close()
-        return jsonify({"msg": "Receta no encontrada"}), 404
-    # user role
-    cursor.execute(
-        "SELECT role FROM users WHERE username=%s", (current_user["username"],)
-    )
-    user_role = cursor.fetchone()
-    print("user_role")
-    print(user_role)
-    role = user_role.get("role") if user_role else None
-    if role != "admin" and recipe["created_by"] != current_user:
+        return jsonify({"msg": "Receta no encontrada!"}), 404
+    # check if user is not allowed to update
+    if current_user["role"] != "admin" and recipe["created_by"] != current_user:
         cursor.close()
         conn.close()
         return jsonify({"msg": "No tienes permiso para editar esta receta"}), 403
-
+    # update recipe
     cursor.execute(
         "UPDATE recipes SET title=%s, description=%s, ingredients=%s, imageUrl=%s WHERE id=%s",
         (title, description, json.dumps(ingredients), imageUrl, recipe_id),
     )
-
+    # update steps (first delete steps then insert new ones)
     cursor.execute("DELETE FROM recipe_steps WHERE recipe_id = %s", (recipe_id,))
     for step in steps:
         cursor.execute(
@@ -164,41 +152,39 @@ def update_recipe(recipe_id):
     conn.commit()
     cursor.close()
     conn.close()
-    return jsonify({"msg": "¡¡Receta actualizada con éxito!!"}), 200
+    return jsonify({"msg": "Receta actualizada con éxito!!"}), 200
 
 
-# route to show selected recipe
+# route to delete selected recipe
 @recipes_bp.route("/api/recipes/<int:recipe_id>", methods=["DELETE"])
 @jwt_required()
 def delete_recipe(recipe_id):
     current_user = get_jwt_identity()
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT created_by FROM recipes WHERE id = %s", (recipe_id,))
-    recipe = cursor.fetchone()
 
-    if not recipe:
+    try:
+        # get recipe
+        print(recipe_id)
+        cursor.execute("SELECT * FROM recipes WHERE id = %s", (recipe_id,))
+        recipe = cursor.fetchone()
+        print(recipe)
+        if not recipe:
+            return jsonify({"msg": "Receta no encontrada"}), 404
+
+        # check if user is allowed
+        if current_user["role"] != "admin" and recipe["created_by"] != current_user["username"]:
+            return jsonify({"msg": "No tienes permiso para borrar esta receta"}), 403
+
+        # delete
+        cursor.execute("DELETE FROM recipes WHERE id = %s", (recipe_id,))
+        conn.commit()
+        return jsonify({"msg": "Receta eliminada con éxito"}), 200
+
+    finally:
+        # close connection
         cursor.close()
         conn.close()
-        return jsonify({"msg": "Receta no encontrada"}), 404
-
-    cursor.execute(
-        "SELECT role FROM users WHERE username=%s", (current_user["username"],)
-    )
-    user_role = cursor.fetchone()
-    role = user_role.get("role") if user_role else None
-
-    if role != "admin" and recipe["created_by"] != current_user["username"]:
-        cursor.close()
-        conn.close()
-        return jsonify({"msg": "No tienes permiso para borrar esta receta"}), 403
-
-    cursor.execute("DELETE FROM recipes WHERE id = %s", (recipe_id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return jsonify({"msg": "Receta eliminada con éxito"}), 200
 
 
 # Comments
