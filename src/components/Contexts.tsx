@@ -60,7 +60,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const alert = (message: string, type: "success" | "error" | "info" = "info") => {
     setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000); // desaparece en 3s
+    setTimeout(() => setNotification(null), 3000);
   };
 
   return (
