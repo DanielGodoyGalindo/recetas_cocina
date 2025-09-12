@@ -103,7 +103,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 		}
 	};
 
-	const handleDeleteComment = async (comment_id: string) => {
+	const handleDeleteComment = async (comment_id: number) => {
 		try {
 			const data = await apiFetch(
 				`/api/recipes/${recipe?.id}/comments/delete/${comment_id}`,
@@ -112,10 +112,11 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 			console.log(data);
 			if (data.msg == '¡No tienes permisos para borrar el comentario!')
 				alert(data.msg, "error");
-			else
+			else {
 				alert(data.msg, "success");
-			// update comments state without deleted comment
-			setComments((prev) => prev.filter((c) => String(c.id) !== comment_id));
+				// update comments state without deleted comment
+				setComments((prev) => prev.filter((c) => c.id !== comment_id));
+			}
 		} catch (e) {
 			console.log("Error borrando el comentario: ", e);
 		}
@@ -191,7 +192,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 						<div className="recipe_comment" key={comment.id}>
 							<p>{comment.text_comment} ({comment.vote}⭐)</p>
 							<p id="p_comment"><strong>- {comment.username}</strong></p>
-							<button onClick={() => handleDeleteComment(comment.id)}>Borrar</button>
+							<button onClick={() => handleDeleteComment(comment.id)} id="delete_comment_button">Borrar</button>
 						</div>
 					))
 				) : (

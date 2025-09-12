@@ -271,6 +271,18 @@ https://github.com/DanielGodoyGalindo */
   border: 0px solid black;
   border-radius: 20px;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  button {
+    align-self: center;
+    border: none;
+    cursor: pointer;
+    background: none;
+  }
+  button:hover{
+    color: red;
+    text-decoration: underline;
+  }
 }
 
 #p_comment {
