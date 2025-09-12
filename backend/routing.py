@@ -173,7 +173,10 @@ def delete_recipe(recipe_id):
             return jsonify({"msg": "Receta no encontrada"}), 404
 
         # check if user is allowed
-        if current_user["role"] != "admin" and recipe["created_by"] != current_user["username"]:
+        if (
+            current_user["role"] != "admin"
+            and recipe["created_by"] != current_user["username"]
+        ):
             return jsonify({"msg": "No tienes permiso para borrar esta receta"}), 403
 
         # delete
@@ -281,6 +284,44 @@ def add_comment(recipe_id):
             return jsonify({"msg": "Ya has comentado esta receta"}), 400
         else:
             return jsonify({"msg": "Error de base de datos"}), 500
+
+
+@recipes_bp.route(
+    "/api/recipes/<int:recipe_id>/comments/delete/<int:comment_id>", methods=["DELETE"]
+)
+@jwt_required()
+def delete_comment(recipe_id, comment_id):
+    current_user = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    try:
+        cursor.execute(
+            "SELECT * FROM comments WHERE id = %s AND recipe_id = %s",
+            (comment_id, recipe_id),
+        )
+        comment = cursor.fetchone()
+
+        if not comment:
+            return jsonify({"msg": "¡Comentario no encontrado!"}), 404
+
+        if current_user["id"] != comment["user_id"] and current_user["role"] != "admin":
+            return jsonify(
+                {"msg": "¡No tienes permisos para borrar el comentario!"}
+            ), 403
+
+        cursor.execute("DELETE FROM comments WHERE id = %s", (comment_id,))
+        conn.commit()
+
+        return jsonify({"msg": "¡Comentario eliminado!"}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"msg": f"Error al borrar el comentario: {str(e)}"}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # register and login

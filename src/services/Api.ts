@@ -1,5 +1,5 @@
 export async function apiFetch(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("token");
 
   const headers = {
     "Content-Type": "application/json",
@@ -13,7 +13,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
   });
 
   if (response.status === 401) {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
     window.location.href = "/login";
     throw new Error("Sesión expirada");
   }
