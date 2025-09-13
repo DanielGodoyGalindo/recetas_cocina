@@ -16,29 +16,18 @@ function App() {
   const { alert } = useNotification();
 
   // Create recipe
-  const handleSaveRecipe = async (recipeData) => {
+  const handleSaveRecipe = async (formData) => {
     try {
       const res = await fetch("http://localhost:5000/api/recipes", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData),
+        body: formData,
       });
 
       const data = await res.json();
-
-      if (res.status === 401) {
-        alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.", "info");
-        logout();
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error("Error al crear receta");
-      }
-
+      if (!res.ok) throw new Error(data.message || "Error al crear receta");
       alert(data.message, "success");
     } catch (err) {
       alert(`No se pudo crear la receta: ${err.message}`, "error");

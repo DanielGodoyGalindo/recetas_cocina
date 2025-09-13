@@ -28,6 +28,7 @@ function Login() {
 
             if (res.status === 401) {
                 logout();
+                alert("Sesión expirada", "error");
                 throw new Error("Sesión expirada");
             }
 

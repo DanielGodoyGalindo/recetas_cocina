@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import BackButton from './BackButton.tsx';
-import { Recipe, Step } from "../Types";
+import { Recipe, Step, User } from "../Types";
 import { useUser } from "./Contexts.tsx";
 
 interface RecipeFormProps {
   newRecipe: boolean;
+  user: User;
   initialRecipe?: Recipe;
-  onSave: (recipe: Recipe) => Promise<void>;
+  onSave: (formData: FormData) => Promise<void>;
 }
 
 function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
@@ -17,14 +18,14 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
 
   const [recipe, setRecipe] = useState<Recipe>(initialRecipe
     ? { ...initialRecipe, steps: initialRecipe.steps || [], ingredients: initialRecipe.ingredients || {} }
-    : { title: "", description: "", imageUrl: "", created_by: user?.username || "", ingredients: {}, steps: [] }
+    : { title: "", description: "", imagePath: "", created_by: user?.username || "", ingredients: {}, steps: [] }
   );
 
-  // Inputs controlados
   const [ingredientName, setIngredientName] = useState<string>("");
   const [ingredientQuantity, setIngredientQuantity] = useState<string>("");
   const [stepDescription, setStepDescription] = useState<string>("");
-  const [stepDuration, setStepDuration] = useState<string>(""); // en minutos
+  const [stepDuration, setStepDuration] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!newRecipe && id) {
@@ -44,12 +45,31 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
   }, [newRecipe, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSave) {
-      await onSave(recipe);
-      navigate("/");
-    }
-  };
+  e.preventDefault();
+
+  const formData = new FormData();
+
+  console.log("recipe object:", recipe);
+  console.log("imageFile:", imageFile);
+
+  formData.append("title", recipe.title || "");
+  formData.append("description", recipe.description || "");
+  formData.append("created_by", recipe.created_by || "admin");
+  formData.append("ingredients", JSON.stringify(recipe.ingredients || {}));
+  formData.append("steps", JSON.stringify(recipe.steps || []));
+
+  if (imageFile) {
+    formData.append("image", imageFile);
+  }
+
+  // Verificar qué hay dentro de formData
+  for (let [key, value] of formData.entries()) {
+    console.log(key, value);
+  }
+
+  await onSave(formData);
+  navigate("/");
+};
 
   // INGREDIENTES
   const addIngredient = () => {
@@ -103,7 +123,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
     <div id="new_recipe_form">
       <form onSubmit={handleSubmit}>
         <h1>{newRecipe ? "Nueva receta" : "Editar receta"}</h1>
-
+        {/* name */}
         <label htmlFor="recipe_name">Nombre de la receta:</label><br />
         <input
           type="text"
@@ -112,7 +132,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
           value={recipe.title}
           onChange={(e) => setRecipe({ ...recipe, title: e.target.value })}
         /><br />
-
+        {/* description */}
         <label htmlFor="recipe_description">Descripción:</label><br />
         <input
           type="text"
@@ -121,14 +141,20 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
           value={recipe.description}
           onChange={(e) => setRecipe({ ...recipe, description: e.target.value })}
         /><br />
-
-        <label htmlFor="recipe_image_url">Imagen de la receta:</label><br />
+        {/* image */}
+        <label htmlFor="recipe_image_path">Imagen de la receta:</label><br />
         <input
-          type="text"
-          id="recipe_image_url"
+          type="file"
+          id="recipe_image_path"
           className="recipe_form_input"
-          value={recipe.imageUrl}
-          onChange={(e) => setRecipe({ ...recipe, imageUrl: e.target.value })}
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              setImageFile(file);
+              setRecipe({ ...recipe, imagePath: file.name });
+            }
+          }}
         /><br />
 
         {/* INGREDIENTES */}

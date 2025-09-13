@@ -6,7 +6,7 @@ import { Recipe, User } from "../Types";
 interface EditRecipeWrapperProps {
     user: User | null;
     token: string | null;
-    onSave: (recipe: Recipe, token: string | null) => Promise<void>;
+    onSave: (formData: FormData, token: string | null) => Promise<void>;
 }
 
 function EditRecipeWrapper({ user, token, onSave }: EditRecipeWrapperProps) {
@@ -40,8 +40,8 @@ function EditRecipeWrapper({ user, token, onSave }: EditRecipeWrapperProps) {
             newRecipe={false}
             user={user}
             initialRecipe={recipe}
-            onSave={async (updatedRecipe: Recipe) => {
-                await onSave(updatedRecipe, token);
+            onSave={async (formData: FormData) => {
+                await onSave(formData, token);
             }}
         />
     );

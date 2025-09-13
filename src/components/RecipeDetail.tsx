@@ -110,7 +110,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 				{ method: "DELETE" }
 			);
 			console.log(data);
-			if (data.msg == '¡No tienes permisos para borrar el comentario!')
+			if (data.msg === '¡No tienes permisos para borrar el comentario!')
 				alert(data.msg, "error");
 			else {
 				alert(data.msg, "success");
@@ -160,8 +160,8 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 					</div>
 
 				</div>
-
-				<img src={recipe.imageUrl} alt={recipe.title} className="image_sample" />
+						
+				<img src={recipe.imagePath} alt={recipe.title} className="image_sample" />
 			</div>
 
 			{/* Steps */}

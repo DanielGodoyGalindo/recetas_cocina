@@ -57,4 +57,5 @@ Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, 
 
 ### ToDo
 * Comprobar que no se cierra bien la sesión cada vez que se arranca el server
-* Qee el usuario pueda subir una imagen desde su pc para la nueva receta, que no sea una url
+* Que el usuario pueda subir una imagen desde su pc para la nueva receta, que no sea una url
+* Que el usuario autenticado pueda editar sus comentarios

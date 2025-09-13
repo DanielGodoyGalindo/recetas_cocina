@@ -13,11 +13,12 @@ cursor.execute("CREATE DATABASE IF NOT EXISTS recipesapp")
 cursor.execute("USE recipesapp")
 
 # drop tables
+cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
 cursor.execute("DROP TABLE IF EXISTS recipe_steps;")
 cursor.execute("DROP TABLE IF EXISTS comments;")
 cursor.execute("DROP TABLE IF EXISTS users;")
 cursor.execute("DROP TABLE IF EXISTS recipes;")
-
+cursor.execute("DROP TABLE IF EXISTS user_favorites;")
 
 # recipes table
 cursor.execute("""
@@ -26,7 +27,7 @@ CREATE TABLE recipes (
     title VARCHAR(255),
     description TEXT,
     ingredients JSON,
-    imageUrl VARCHAR(255),
+    imagePath VARCHAR(255),
     created_by VARCHAR(255) DEFAULT 'admin'
 )
 """)
@@ -104,7 +105,7 @@ recipes = [
             "Aceite": "al gusto",
             "Sal": "una pizca",
         },
-        "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2025/02/tortilla-de-patatas-1.jpg",
+        "imagePath": "/img/recipes/tortilla-de-patatas-1.jpg",
     },
     {
         "title": "Paella",
@@ -115,7 +116,7 @@ recipes = [
             "Azafrán": "1 sobre",
             "Pimiento": "1",
         },
-        "imageUrl": "https://imag.bonviveur.com/paella-de-pollo.jpg",
+        "imagePath": "/img/recipes/paella-de-pollo.jpg",
     },
     {
         "title": "Pizza margarita",
@@ -127,7 +128,7 @@ recipes = [
             "Mozarella": "150 gr",
             "Albahaca": "al gusto",
         },
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg",
+        "imagePath": "/img/recipes/Eq_it-na_pizza-margherita_sep2005_sml.jpg",
     },
     {
         "title": "Tortitas",
@@ -140,7 +141,7 @@ recipes = [
             "Leche": "200 ml",
             "Levadura": "1 cucharadita",
         },
-        "imageUrl": "https://recetasdecocina.elmundo.es/wp-content/uploads/2024/10/receta-de-tortitas-1024x683.jpg",
+        "imagePath": "/img/recipes/receta-de-tortitas-1024x683.jpg",
     },
 ]
 
@@ -148,7 +149,7 @@ recipes = [
 for recipe in recipes:
     cursor.execute(
         """
-        INSERT INTO recipes (title, description, ingredients, imageUrl)
+        INSERT INTO recipes (title, description, ingredients, imagePath)
         VALUES (%s, %s, %s, %s)
         ON DUPLICATE KEY UPDATE description=%s
         """,
@@ -157,7 +158,7 @@ for recipe in recipes:
             recipe["description"],
             # serialize python dictionary to json string
             json.dumps(recipe["ingredients"], ensure_ascii=False),
-            recipe["imageUrl"],
+            recipe["imagePath"],
             recipe["description"],
         ),
     )

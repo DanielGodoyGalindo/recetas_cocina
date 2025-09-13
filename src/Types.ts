@@ -13,7 +13,7 @@ export interface Recipe {
   title: string;
   description: string;
   ingredients: Record<string, string>; // property with key and value
-  imageUrl: string;
+  imagePath: string;
   created_by: string;
   steps: Step[];
 }

@@ -6,9 +6,12 @@ from flask_jwt_extended import (
 )
 import bcrypt
 import json
+import os
 from flask import jsonify, request, Blueprint
 import mysql.connector
 from mysql.connector import IntegrityError
+from werkzeug.utils import secure_filename
+
 
 # create Blueprint object
 # https://flask.palletsprojects.com/en/stable/blueprints/
@@ -25,7 +28,7 @@ def get_recipes():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     query = """
-        SELECT id, title, description, ingredients, imageUrl, created_by 
+        SELECT id, title, description, ingredients, imagePath, created_by 
         FROM recipes
         WHERE title LIKE %s OR created_by LIKE %s OR ingredients LIKE %s
     """
@@ -46,7 +49,7 @@ def get_recipe(recipe_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
-        "SELECT id, title, description, ingredients, imageUrl, created_by FROM recipes WHERE id = %s",
+        "SELECT id, title, description, ingredients, imagePath, created_by FROM recipes WHERE id = %s",
         (recipe_id,),
     )
     recipe = cursor.fetchone()
@@ -70,30 +73,41 @@ def get_recipe(recipe_id):
 @recipes_bp.route("/api/recipes", methods=["POST"])
 @jwt_required()
 def create_recipe():
-    data = request.get_json()
-    title = data.get("title")
-    description = data.get("description")
-    imageUrl = data.get("imageUrl")
-    created_by = data.get("created_by", "admin")
-    ingredients = data.get("ingredients", {})
-    steps = data.get("steps", [])
+    title = request.form.get("title")
+    print("title: ", title)
+    description = request.form.get("description")
+    created_by = request.form.get("created_by")
+
+    ingredients = json.loads(request.form.get("ingredients", "{}"))
+    steps = json.loads(request.form.get("steps", "[]"))
+    image = request.files.get("image")
+    imagePath = None
+    if image:
+        upload_folder = os.path.join("public", "img", "recipes")
+        os.makedirs(upload_folder, exist_ok=True)
+        filename = secure_filename(image.filename)
+        save_path = os.path.join("public", "img", "recipes", filename)
+        image.save(save_path)
+        imagePath = f"img/recipes/{filename}"
+
     # database
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT INTO recipes (title, description, ingredients, imageUrl, created_by)
+        INSERT INTO recipes (title, description, ingredients, imagePath, created_by)
         VALUES (%s, %s, %s, %s, %s)
     """,
         (
             title,
             description,
             json.dumps(ingredients, ensure_ascii=False),
-            imageUrl,
+            imagePath,
             created_by,
         ),
     )
     recipe_id = cursor.lastrowid
+
     for i, step in enumerate(steps, start=1):
         instruction = step.get("instruction")
         duration_min = step.get("duration_min")
@@ -105,9 +119,11 @@ def create_recipe():
         """,
             (recipe_id, i, instruction, duration_min),
         )
+
     conn.commit()
     cursor.close()
     conn.close()
+
     return jsonify({"message": "Receta creada con éxito!", "recipe_id": recipe_id}), 201
 
 
@@ -118,7 +134,7 @@ def update_recipe(recipe_id):
     data = request.get_json()
     title = data.get("title")
     description = data.get("description")
-    imageUrl = data.get("imageUrl")
+    imagePath = data.get("imagePath")
     ingredients = data.get("ingredients", {})
     steps = data.get("steps", [])
     # database
@@ -138,8 +154,8 @@ def update_recipe(recipe_id):
         return jsonify({"msg": "No tienes permiso para editar esta receta"}), 403
     # update recipe
     cursor.execute(
-        "UPDATE recipes SET title=%s, description=%s, ingredients=%s, imageUrl=%s WHERE id=%s",
-        (title, description, json.dumps(ingredients), imageUrl, recipe_id),
+        "UPDATE recipes SET title=%s, description=%s, ingredients=%s, imagePath=%s WHERE id=%s",
+        (title, description, json.dumps(ingredients), imagePath, recipe_id),
     )
     # update steps (first delete steps then insert new ones)
     cursor.execute("DELETE FROM recipe_steps WHERE recipe_id = %s", (recipe_id,))
