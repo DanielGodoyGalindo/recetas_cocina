@@ -241,6 +241,7 @@ def add_comment(recipe_id):
     data = request.get_json()
     text_comment = data.get("text_comment")
     vote = data.get("vote")
+    print("text_comment", text_comment)
 
     # Validation
     if not text_comment:
@@ -334,6 +335,51 @@ def delete_comment(recipe_id, comment_id):
     except Exception as e:
         conn.rollback()
         return jsonify({"msg": f"Error al borrar el comentario: {str(e)}"}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@recipes_bp.route("/api/comments/<int:comment_id>", methods=["PUT"])
+@jwt_required()
+def update_comment(comment_id):
+    current_user = get_jwt_identity()
+    data = request.get_json()
+
+    new_text = data.get("text_comment")
+    new_vote = data.get("vote")
+
+    if not isinstance(new_text, str) or not new_text.strip():
+        return jsonify({"error": "El comentario debe ser un texto válido"}), 422
+    if not isinstance(new_vote, int) or new_vote < 1 or new_vote > 5:
+        return jsonify({"error": "El voto debe estar entre 1 y 5"}), 422
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM comments WHERE id=%s", (comment_id,))
+        comment = cursor.fetchone()
+        # validation
+        if not comment:
+            return jsonify({"error": "Comentario no encontrado"}), 404
+        if current_user["id"] != comment["user_id"]:
+            return jsonify(
+                {"error": "No tienes permisos para editar este comentario"}
+            ), 403
+
+        cursor.execute(
+            "UPDATE comments SET text_comment=%s, vote=%s WHERE id=%s",
+            (new_text.strip(), new_vote, comment_id),
+        )
+        conn.commit()
+        return jsonify({"msg": "Comentario actualizado!"}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify(
+            {"error": "Error al actualizar comentario", "detail": str(e)}
+        ), 500
 
     finally:
         cursor.close()

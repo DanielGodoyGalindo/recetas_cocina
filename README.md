@@ -8,8 +8,7 @@ Aplicación web desarrollada con React + Flask para la gestión de recetas de co
 ## Instalación
 git clone https://github.com/DanielGodoyGalindo/recetas_cocina.git
 npm install
-pip install -r requirements.txt
-
+pip install -r backend/requirements.txt
 
 ## Herramientas y lenguajes utilizados:
 <p style="display:flex; justify-content:center;gap:2rem;">
@@ -52,10 +51,12 @@ Los usuarios puede dejar un comentario y una valoración en cada una de las rece
 ### Recetas favoritas
 Cada usuario puede marcar sus recetas favoritas, de modo que cuando esté logueado se muestre ⭐ en las recetas que ha marcado como favoritas en el listado de todas las recetas. Dentro de los detalles de cada receta, el usuario puede añadir / quitar de sus favoritos, de modo que se muestre un botón u otro, dependiendo del estado favorito de la receta. El componente se renderiza cada vez que el usuario añade / elimina de sus favoritos.
 
-### Recetas favoritas
+### Compartir receta
 Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, Telegram y X. El usuario puede enviar así la receta autenticandose en cada una de estas plataformas.
 
+### Imagen de receta
+El usuario puede añadir su propia imagen a cada receta, guardandose el fichero en el servidor, de modo que no se utiliza una url para mostrar las imagenes sino que se accede a las imagenes por medio de rutas relativas.
+
 ### ToDo
-* Comprobar que no se cierra bien la sesión cada vez que se arranca el server
-* Que el usuario pueda subir una imagen desde su pc para la nueva receta, que no sea una url
-* Que el usuario autenticado pueda editar sus comentarios
+* Que el usuario autenticado pueda editar sus comentarios.
+* Poder filtar las recetas: sólo favoritas, sólo no favoritas o todas.

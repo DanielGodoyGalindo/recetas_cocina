@@ -25,6 +25,9 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 	const [newComment, setNewComment] = useState("");
 	const [newVote, setNewVote] = useState(5);
 	const [steps, setSteps] = useState<Step[]>([]);
+	const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+	const [editingText, setEditingText] = useState("");
+	const [editingVote, setEditingVote] = useState(5);
 
 	// Variables
 	const isCreator = user?.username === recipe?.created_by;
@@ -88,6 +91,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 				body: JSON.stringify({ text_comment: newComment, vote: newVote })
 			});
 
+			console.log(res);
 			const data = await res.json();
 			if (!res.ok) {
 				alert(data.msg, "error");
@@ -109,7 +113,6 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 				`/api/recipes/${recipe?.id}/comments/delete/${comment_id}`,
 				{ method: "DELETE" }
 			);
-			console.log(data);
 			if (data.msg === '¡No tienes permisos para borrar el comentario!')
 				alert(data.msg, "error");
 			else {
@@ -119,6 +122,42 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 			}
 		} catch (e) {
 			console.log("Error borrando el comentario: ", e);
+		}
+	};
+
+	const handleUpdateComment = async (commentId: number) => {
+		try {
+			const data = await apiFetch(
+				`/api/comments/${commentId}`,
+				{
+					method: "PUT",
+					body: JSON.stringify({ text_comment: editingText, vote: editingVote })
+				}
+			);
+
+			if ("error" in data) {
+				alert(data.error, "error");
+				return;
+			}
+
+			if (!data.msg) {
+				alert(data.error || "Error actualizando comentario", "error");
+				return;
+			}
+
+			setComments((prev) =>
+				prev.map((c) =>
+					c.id === commentId ? { ...c, text_comment: editingText, vote: editingVote } : c
+				)
+			);
+
+			setEditingCommentId(null);
+			setEditingText("");
+			setEditingVote(5);
+			alert(data.msg, "success");
+		} catch (err) {
+			console.log("Error editando el comentario: ", err);
+			alert("No se pudo actualizar el comentario", "error");
 		}
 	};
 
@@ -160,7 +199,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 					</div>
 
 				</div>
-						
+
 				<img src={recipe.imagePath} alt={recipe.title} className="image_sample" />
 			</div>
 
@@ -190,9 +229,45 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 				{comments.length > 0 ? (
 					comments.map((comment) => (
 						<div className="recipe_comment" key={comment.id}>
-							<p>{comment.text_comment} ({comment.vote}⭐)</p>
+							{editingCommentId === comment.id ? (
+								<>
+									<textarea
+										value={editingText}
+										onChange={(e) => setEditingText(e.target.value)}
+									/>
+									<select
+										value={editingVote}
+										onChange={(e) => setEditingVote(Number(e.target.value))}
+									>
+										{[1, 2, 3, 4, 5].map((n) => (
+											<option key={n} value={n}>{n}⭐</option>
+										))}
+									</select>
+								</>
+							) : (
+								<p>{comment.text_comment} ({comment.vote}⭐)</p>
+							)}
 							<p id="p_comment"><strong>- {comment.username}</strong></p>
-							<button onClick={() => handleDeleteComment(comment.id)} id="delete_comment_button">Borrar</button>
+
+							{comment.username === user?.username && (
+								<button
+									onClick={() => {
+										if (editingCommentId === comment.id) {
+											handleUpdateComment(comment.id);
+										} else {
+											setEditingCommentId(comment.id);
+											setEditingText(comment.text_comment);
+											setEditingVote(comment.vote);
+										}
+									}}
+									id="edit_comment_button"
+								>
+									{editingCommentId === comment.id ? "Aceptar" : "Editar"}
+								</button>
+							)}
+							{comment.username === user?.username && (
+								<button onClick={() => handleDeleteComment(comment.id)} id="delete_comment_button">Borrar</button>
+							)}
 						</div>
 					))
 				) : (
