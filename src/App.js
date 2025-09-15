@@ -28,9 +28,12 @@ function App() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Error al crear receta");
+
       alert(data.message, "success");
+      return data;
     } catch (err) {
       alert(`No se pudo crear la receta: ${err.message}`, "error");
+      throw err;
     }
   };
 

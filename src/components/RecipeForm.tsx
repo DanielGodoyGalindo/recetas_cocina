@@ -46,12 +46,7 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-
   const formData = new FormData();
-
-  console.log("recipe object:", recipe);
-  console.log("imageFile:", imageFile);
-
   formData.append("title", recipe.title || "");
   formData.append("description", recipe.description || "");
   formData.append("created_by", recipe.created_by || "admin");
@@ -61,12 +56,6 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
   if (imageFile) {
     formData.append("image", imageFile);
   }
-
-  // Verificar qué hay dentro de formData
-  for (let [key, value] of formData.entries()) {
-    console.log(key, value);
-  }
-
   await onSave(formData);
   navigate("/");
 };

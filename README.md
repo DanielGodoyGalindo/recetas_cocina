@@ -58,5 +58,4 @@ Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, 
 El usuario puede añadir su propia imagen a cada receta, guardandose el fichero en el servidor, de modo que no se utiliza una url para mostrar las imagenes sino que se accede a las imagenes por medio de rutas relativas.
 
 ### ToDo
-* Que el usuario autenticado pueda editar sus comentarios.
-* Poder filtar las recetas: sólo favoritas, sólo no favoritas o todas.
+* Paginación de recetas (cinco por página).

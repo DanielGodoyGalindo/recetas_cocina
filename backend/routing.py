@@ -83,10 +83,11 @@ def create_recipe():
     image = request.files.get("image")
     imagePath = None
     if image:
-        upload_folder = os.path.join("public", "img", "recipes")
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        upload_folder = os.path.join(project_root, "public", "img", "recipes")
         os.makedirs(upload_folder, exist_ok=True)
         filename = secure_filename(image.filename)
-        save_path = os.path.join("public", "img", "recipes", filename)
+        save_path = os.path.join(upload_folder, filename)
         image.save(save_path)
         imagePath = f"img/recipes/{filename}"
 
