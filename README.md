@@ -7,8 +7,10 @@ Aplicación web desarrollada con React + Flask para la gestión de recetas de co
 
 ## Instalación
 git clone https://github.com/DanielGodoyGalindo/recetas_cocina.git
-npm install
 pip install -r backend/requirements.txt
+npm install
+python backend/app.py
+npm start
 
 ## Herramientas y lenguajes utilizados:
 <p style="display:flex; justify-content:center;gap:2rem;">
@@ -45,6 +47,9 @@ Uso de Blueprints de Flask para el enrutamiento de la app. Cada ruta tiene un co
 ### Buscador de recetas por nombre, ingrediente o creador de la receta
 Busca en la BDD por medio del Backend el término escrito por el usuario y muestra el resultado en tiempo real, de esta manera la búsqueda es mucho más eficiente que si se realizase en el Frontend.
 
+### Filtro de recetas
+Se incluye un filtro para mostrar las recetas según la opción que el usuario haya seleccionado: mostrar todas, sólo favoritas o mostrar las no favoritas. El filtro se ejecuta después del input que el usuario haya tecleado (si es que lo ha hecho.)
+
 ### Comentarios en recetas
 Los usuarios puede dejar un comentario y una valoración en cada una de las recetas. Un usuario no puede votarse a si mísmo y sólo puede dejar un comentario por receta. Cuando se visualiza una receta, aparecen todos los comentarios de los usuarios.
 
@@ -57,5 +62,9 @@ Dentro de cada receta se incluyen botones para compartir la receta en WhatsApp, 
 ### Imagen de receta
 El usuario puede añadir su propia imagen a cada receta, guardandose el fichero en el servidor, de modo que no se utiliza una url para mostrar las imagenes sino que se accede a las imagenes por medio de rutas relativas.
 
+### Paginación
+Se ha incluido un componente para la paginación de las recetas en la página principal, de manera que se pueden elegir el número de recetas a mostrar por página. Se ha integrado para que se lance después del filtro del input del usuario y después del select, para que todo funcione conjuntamente. Link al componente utilizado:
+https://mui.com/material-ui/react-pagination/
+
 ### ToDo
-* Paginación de recetas (cinco por página).
+* Revisar actualizar una receta --> failed to fetch

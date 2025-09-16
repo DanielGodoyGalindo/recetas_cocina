@@ -4,6 +4,7 @@ import { Recipe } from "../Types";
 import { Link } from 'react-router-dom';
 import { useUser } from './Contexts.tsx';
 import { apiFetch } from "../services/Api.ts";
+import RecipePagination from "./RecipePagination.tsx"
 
 function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -12,6 +13,8 @@ function Recipes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [finalRecipes, setFinalRecipes] = useState<Recipe[]>([]);
   const { token } = useUser();
+  const [page, setPage] = useState(1);
+  const recipesPerPage = 4;
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -65,6 +68,11 @@ function Recipes() {
     setFinalRecipes(filtered);
   }, [recipes, favorites, searchTerm, favoritesFilter]);
 
+  const indexOfLastRecipe = page * recipesPerPage;
+  const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+  const currentRecipes = finalRecipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
+
+
   return (
     <div>
       <RecipeSearchBar onSearch={setSearchTerm} />
@@ -77,8 +85,8 @@ function Recipes() {
         </select>
       </div>
       <ul>
-        {finalRecipes.length > 0 ? (
-          finalRecipes.map((recipe) => {
+        {currentRecipes.length > 0 ? (
+          currentRecipes.map((recipe) => {
             const isFavorite = favorites.some(fav => fav.id === recipe.id);
             return (
               <Link key={recipe.id} to={`/${recipe.id}`}>
@@ -93,6 +101,14 @@ function Recipes() {
           <li>No se encontraron recetas 😕</li>
         )}
       </ul>
+
+      {/* pagination */}
+      <RecipePagination
+        total={finalRecipes.length}
+        perPage={recipesPerPage}
+        page={page}
+        onChange={(event, value) => setPage(value)}
+      />
       <p id="recipes_user_information">(Las recetas favoritas aparecen marcadas con una estrella)</p>
     </div>
   );

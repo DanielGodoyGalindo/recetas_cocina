@@ -396,3 +396,11 @@ https://github.com/DanielGodoyGalindo */
   padding-top: 2rem;
   gap: 0.5rem;
 }
+
+.MuiPagination-ul{
+  display: flex;
+  flex-direction: row;
+  li{
+    padding: 0.2rem;
+  }
+}
