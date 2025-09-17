@@ -74,7 +74,6 @@ def get_recipe(recipe_id):
 @jwt_required()
 def create_recipe():
     title = request.form.get("title")
-    print("title: ", title)
     description = request.form.get("description")
     created_by = request.form.get("created_by")
 
@@ -132,43 +131,79 @@ def create_recipe():
 @jwt_required()
 def update_recipe(recipe_id):
     current_user = get_jwt_identity()
-    data = request.get_json()
-    title = data.get("title")
-    description = data.get("description")
-    imagePath = data.get("imagePath")
-    ingredients = data.get("ingredients", {})
-    steps = data.get("steps", [])
-    # database
+
+    title = request.form.get("title")
+    description = request.form.get("description")
+    ingredients = json.loads(request.form.get("ingredients", "{}"))
+    steps = json.loads(request.form.get("steps", "[]"))
+
+    image = request.files.get("image")
+    imagePath = None
+    if image:
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        upload_folder = os.path.join(project_root, "public", "img", "recipes")
+        os.makedirs(upload_folder, exist_ok=True)
+        filename = secure_filename(image.filename)
+        save_path = os.path.join(upload_folder, filename)
+        image.save(save_path)
+        imagePath = f"img/recipes/{filename}"
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    # get recipe
+
     cursor.execute("SELECT * FROM recipes WHERE id = %s", (recipe_id,))
     recipe = cursor.fetchone()
     if not recipe:
         cursor.close()
         conn.close()
         return jsonify({"msg": "Receta no encontrada!"}), 404
-    # check if user is not allowed to update
-    if current_user["role"] != "admin" and recipe["created_by"] != current_user:
+
+    # Verificar permisos
+    if current_user["role"] != "admin" and recipe["created_by"] != current_user["id"]:
         cursor.close()
         conn.close()
         return jsonify({"msg": "No tienes permiso para editar esta receta"}), 403
-    # update recipe
-    cursor.execute(
-        "UPDATE recipes SET title=%s, description=%s, ingredients=%s, imagePath=%s WHERE id=%s",
-        (title, description, json.dumps(ingredients), imagePath, recipe_id),
-    )
-    # update steps (first delete steps then insert new ones)
-    cursor.execute("DELETE FROM recipe_steps WHERE recipe_id = %s", (recipe_id,))
-    for step in steps:
-        cursor.execute(
-            "INSERT INTO recipe_steps (recipe_id, position, instruction, duration_min) VALUES (%s, %s, %s, %s)",
-            (recipe_id, step["position"], step["instruction"], step["duration_min"]),
-        )
+
+    # Actualizar receta (solo campos enviados)
+    update_fields = []
+    update_values = []
+
+    if title is not None:
+        update_fields.append("title=%s")
+        update_values.append(title)
+    if description is not None:
+        update_fields.append("description=%s")
+        update_values.append(description)
+    if ingredients:
+        update_fields.append("ingredients=%s")
+        update_values.append(json.dumps(ingredients, ensure_ascii=False))
+    if imagePath:
+        update_fields.append("imagePath=%s")
+        update_values.append(imagePath)
+
+    if update_fields:  # solo ejecuta si hay algo que actualizar
+        query = f"UPDATE recipes SET {', '.join(update_fields)} WHERE id=%s"
+        update_values.append(recipe_id)
+        cursor.execute(query, tuple(update_values))
+
+    # Actualizar pasos (si fueron enviados)
+    if steps:
+        cursor.execute("DELETE FROM recipe_steps WHERE recipe_id = %s", (recipe_id,))
+        for i, step in enumerate(steps, start=1):
+            instruction = step.get("instruction")
+            duration_min = step.get("duration_min")
+            cursor.execute(
+                """
+                INSERT INTO recipe_steps (recipe_id, position, instruction, duration_min)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (recipe_id, i, instruction, duration_min),
+            )
 
     conn.commit()
     cursor.close()
     conn.close()
+
     return jsonify({"msg": "Receta actualizada con éxito!!"}), 200
 
 

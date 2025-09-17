@@ -8,7 +8,7 @@ interface RecipeFormProps {
   newRecipe: boolean;
   user: User;
   initialRecipe?: Recipe;
-  onSave: (formData: FormData) => Promise<void>;
+  onSave: (id: number | undefined, formData: FormData) => Promise<void>;
 }
 
 function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
@@ -45,20 +45,24 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
   }, [newRecipe, id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  const formData = new FormData();
-  formData.append("title", recipe.title || "");
-  formData.append("description", recipe.description || "");
-  formData.append("created_by", recipe.created_by || "admin");
-  formData.append("ingredients", JSON.stringify(recipe.ingredients || {}));
-  formData.append("steps", JSON.stringify(recipe.steps || []));
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", recipe.title || "");
+    formData.append("description", recipe.description || "");
+    formData.append("created_by", recipe.created_by || "admin");
+    formData.append("ingredients", JSON.stringify(recipe.ingredients || {}));
+    formData.append("steps", JSON.stringify(recipe.steps || []));
 
-  if (imageFile) {
-    formData.append("image", imageFile);
-  }
-  await onSave(formData);
-  navigate("/");
-};
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+    try {
+      await onSave(recipe.id, formData); // espera realmente a que termine el fetch
+      navigate("/");
+    } catch (err) {
+      console.error("Error al guardar receta:", err);
+    }
+  };
 
   // INGREDIENTES
   const addIngredient = () => {
@@ -141,7 +145,6 @@ function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
             const file = e.target.files?.[0];
             if (file) {
               setImageFile(file);
-              setRecipe({ ...recipe, imagePath: file.name });
             }
           }}
         /><br />
