@@ -3,7 +3,7 @@
 
 // E.g User objects contains id property that has a number data type
 export interface User {
-  id: number;
+  id?: number;
   username: string;
   role: string;
 }

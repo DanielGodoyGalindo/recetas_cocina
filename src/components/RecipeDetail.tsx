@@ -6,9 +6,13 @@ import { useUser, useNotification } from "./Contexts.tsx";
 import AddToFavButton from "./AddToFavButton.tsx";
 import ShareButtons from "./ShareButtons.tsx";
 import { apiFetch } from "../services/Api.ts";
+import { User } from "../Types";
 
 interface RecipeDetailProps {
-	onDelete: (recipeId: number) => Promise<void>;
+	onDelete: (recipeId: number) => Promise<void>, // function
+	token: string | null; // value
+	user: User | null; // value
+
 }
 
 function RecipeDetail({ onDelete }: RecipeDetailProps) {

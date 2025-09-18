@@ -6,9 +6,11 @@ import { useUser } from "./Contexts.tsx";
 
 interface RecipeFormProps {
   newRecipe: boolean;
-  user: User;
-  initialRecipe?: Recipe;
+  user: User | null;
+  initialRecipe?: Recipe | null;
   onSave: (id: number | undefined, formData: FormData) => Promise<void>;
+  // newRecipe={true} user={user} onSave={handleSaveRecipe}
+
 }
 
 function RecipeForm({ newRecipe, initialRecipe, onSave }: RecipeFormProps) {
