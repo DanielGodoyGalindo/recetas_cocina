@@ -22,7 +22,8 @@ npm start
 </p>
 
 ### Imágenes
-![Captura de la App](public/img/github_sample.jpg)
+![Captura de la App](public/img/github_sample1.jpg)
+![Captura de la App](public/img/github_sample2.jpg)
 
 ### React Hooks
 
