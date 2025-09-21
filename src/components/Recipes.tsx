@@ -110,6 +110,9 @@ function Recipes() {
         onChange={(event, value) => setPage(value)}
       />
       <p id="recipes_user_information">(Las recetas favoritas aparecen marcadas con una estrella)</p>
+      <div id="generate_recipe_own_ingredients_button">
+        <Link to={"/generate_recipe"}>Generar receta con mis ingredientes</Link>
+      </div>
     </div>
   );
 }

@@ -628,3 +628,33 @@ def check_favorite(recipe_id):
     # return true / false
     is_favorite = bool(result)
     return jsonify({"is_favorite": is_favorite}), 200
+
+
+@recipes_bp.route("/api/recipes/generate_recipe", methods=["POST"])
+@jwt_required()
+def generate_recipe():
+    data = request.get_json()
+    ingredients = data.get("ingredients", "")
+    ingredients_list = [i.strip().lower() for i in ingredients.split(",") if i.strip()]
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, title, ingredients FROM recipes")
+    all_recipes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    resultados = []
+
+    for receta in all_recipes:
+        try:
+            ing_json = json.loads(receta["ingredients"])
+        except Exception:
+            continue
+
+        receta_ingredientes = [k.lower() for k in ing_json.keys()]
+
+        if all(ing in receta_ingredientes for ing in ingredients_list):
+            resultados.append({"id": receta["id"], "title": receta["title"]})
+
+    return jsonify(resultados)

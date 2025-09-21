@@ -410,3 +410,9 @@ https://github.com/DanielGodoyGalindo */
     padding: 0.2rem;
   }
 }
+
+#generate_recipes_input_container {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}

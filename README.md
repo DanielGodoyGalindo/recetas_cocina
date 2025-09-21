@@ -68,4 +68,4 @@ Se ha incluido un componente para la paginación de las recetas en la página pr
 https://mui.com/material-ui/react-pagination/
 
 ### ToDo
-* Revisar actualizar una receta --> failed to fetch
+* Que el usuario indique unos ingredientes y la app le indique que recetas podría hacer con esos ingredientes (in progress)

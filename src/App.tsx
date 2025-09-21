@@ -10,6 +10,7 @@ import EditRecipeWrapper from './components/EditRecipeWrapper.tsx';
 import CreateUserForm from './components/CreateUserForm.tsx';
 import Login from "./components/Login.tsx";
 import WelcomeMessage from './components/WelcomeMessage.tsx';
+import GenerateRecipesForm from './components/GenerateRecipesForm.tsx';
 
 function App() {
   const { token, user, login, logout } = useUser();
@@ -25,6 +26,8 @@ function App() {
           <Route path="/new_recipe" element={<RecipeForm newRecipe={true} user={user} onSave={handleSaveRecipe}/>} />
           <Route path="/edit_recipe/:id" element={<EditRecipeWrapper user={user} token={token} onSave={handleEditRecipe} />} />
           <Route path="/create-user" element={<CreateUserForm />} />
+          <Route path="/generate_recipe" element={<GenerateRecipesForm />} />
+          
         </Route>
       </Routes>
     </Router>
