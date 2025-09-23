@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Recipe } from "../Types";
 import { useUser } from "./Contexts.tsx";
+import BackButton from "./BackButton.tsx"
+import { Link } from "react-router-dom";
 
 // generate new recipes with the input ingredients of the user
 function GenerateRecipesForm() {
@@ -8,17 +10,25 @@ function GenerateRecipesForm() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const { token } = useUser();
 
-  const handleSearch = async () => {
+  const handleSearch = async (e: { preventDefault: () => void; }) => {
+    if (e) {
+      e.preventDefault();
+    }
     try {
       const res = await fetch("http://localhost:5000/api/recipes/generate_recipe", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, },
-
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ ingredients })
       });
-
-      const data = await res.json();
-      setRecipes(data);
+      const dbData = await res.json();
+      const aiRes = await fetch("http://localhost:5000/api/recipes/generate_ai_recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ ingredients }),
+      });
+      const aiData = await aiRes.json();
+      console.log(aiData);
+      setRecipes([...dbData, ...aiData]);
     } catch (err) {
       console.error("Error buscando recetas:", err);
     }
@@ -26,12 +36,15 @@ function GenerateRecipesForm() {
 
   return (
     <div>
-      <span>Escribe aquí los ingredientes que tengas por casa (separados por una coma) y haz clic en el botón de buscar.</span><br/>
-      <span>Aparecerán todas las recetas que tenemos guardadas para que sepas cuales puedes preparar 😊 </span>
-      <div id="generate_recipes_input_container">
+      <div id="generate_recipes_info_container">
+        <span>Escribe aquí los ingredientes que tengas por casa (separados por una coma) y haz clic en el botón de buscar.</span><br />
+        <span>Aparecerán todas las recetas que tenemos guardadas para que sepas cuales puedes preparar 😊 </span><br />
+        <span>También aparecerán recetas recomendadas por nuestro asistente 🤖 </span>
+      </div>
+      <form id="generate_recipes_input_container">
         <input
           type="text"
-          placeholder="Ej: huevo, tomate, arroz"
+          placeholder="Ej: huevos, tomate, arroz"
           value={ingredients}
           onChange={(e) => setIngredients(e.target.value)}
         />
@@ -39,14 +52,20 @@ function GenerateRecipesForm() {
         <button onClick={handleSearch}>
           Buscar recetas
         </button>
-      </div>
+      </form>
       <ul>
         {recipes.length > 0 ? (
-          recipes.map((recipe) => <li key={recipe.id}>{recipe.title}</li>)
+          recipes.map((recipe) =>
+            <li key={recipe.id}>
+              <Link to={`/${recipe.id}`}>{recipe.title}</Link>
+            </li>)
         ) : (
           <p>No hay resultados aún.</p>
         )}
       </ul>
+      <div className="centered">
+        <BackButton />
+      </div>
     </div>
   );
 }

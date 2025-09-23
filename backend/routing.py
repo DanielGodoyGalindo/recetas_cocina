@@ -1,3 +1,4 @@
+from flask_cors import CORS
 from db import get_db_connection
 from flask_jwt_extended import (
     create_access_token,
@@ -7,8 +8,10 @@ from flask_jwt_extended import (
 import bcrypt
 import json
 import os
+import google.generativeai as genai
 from flask import jsonify, request, Blueprint
 import mysql.connector
+from dotenv import load_dotenv
 from mysql.connector import IntegrityError
 from werkzeug.utils import secure_filename
 
@@ -16,11 +19,18 @@ from werkzeug.utils import secure_filename
 # create Blueprint object
 # https://flask.palletsprojects.com/en/stable/blueprints/
 recipes_bp = Blueprint("recipes", __name__)
+CORS(recipes_bp)
+
+# https://ai.google.dev/gemini-api/docs/quickstart?hl=es-419
+load_dotenv(".env.development.local")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("Google API Key not found.")
+genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel("models/gemini-2.5-flash")
 
 
 ### Routing ###
-
-
 # Recipes
 @recipes_bp.route("/api/recipes", methods=["GET"])
 def get_recipes():
@@ -498,6 +508,10 @@ def protected():
     return jsonify({"msg": f"Hola {current_user['username']}, estás autenticado!"})
 
 
+# Personal project developed by Daniel Godoy
+# https://github.com/DanielGodoyGalindo
+
+
 # Users
 @recipes_bp.route("/create-user", methods=["POST"])
 def create_user():
@@ -658,3 +672,44 @@ def generate_recipe():
             resultados.append({"id": receta["id"], "title": receta["title"]})
 
     return jsonify(resultados)
+
+
+@recipes_bp.route("/api/recipes/generate_ai_recipe", methods=["POST"])
+@jwt_required()
+def generate_ai_recipe():
+    data = request.get_json()
+    ingredients = data.get("ingredients", "")
+
+    if not ingredients:
+        return jsonify({"error": "No se han proporcionado ingredientes."}), 400
+
+    prompt = (
+        "Eres un chef experto. Devuelve una lista de 3 recetas en formato JSON. "
+        "Cada receta debe tener los campos: id (número), title, ingredients (lista de strings), "
+        "steps (lista de strings). El JSON debe ser una lista de objetos. No devuelvas nada de texto extra fuera del JSON. "
+        "Sugiere recetas que se puedan preparar con estos ingredientes: "
+        f"{ingredients}"
+    )
+
+    try:
+        response = model.generate_content(prompt)
+        content = response.text
+        if content.startswith("```json"):
+            content = content[7:-3].strip()
+        try:
+            recipes = json.loads(content)
+        except json.JSONDecodeError as e:
+            print("Error parseando JSON:", e)
+            print("Contenido recibido de la IA:", content)
+            return jsonify({"error": "Formato de respuesta inesperado de la IA."}), 500
+
+        if not isinstance(recipes, list) or not recipes:
+            return jsonify(
+                {"error": "La IA no devolvió un formato de lista válido."}
+            ), 500
+
+        return jsonify(recipes)
+
+    except Exception as e:
+        print("Error llamando a Gemini:", e)
+        return jsonify({"error": f"Error generando recetas con IA: {str(e)}"}), 500
