@@ -47,6 +47,10 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 					...data,
 					ingredients: data.ingredients || {},
 				});
+				if (data.error) {
+					alert(data.error, "error");
+					navigate("/");
+				}
 			} catch (err) {
 				console.error("Error cargando receta:", err);
 			}
@@ -61,19 +65,27 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 			}
 		};
 
-		const fetchSteps = async () => {
-			try {
-				const data = await apiFetch(`/api/recipes/${id}/steps`);
-				setSteps(data);
-			} catch (err) {
-				console.log("Error obteniendo los pasos de la receta:", err);
-			}
-		};
-
 		fetchRecipe();
 		fetchComments();
-		fetchSteps();
-	}, [id]);
+	}, [id, alert, navigate]);
+
+	useEffect(() => {
+		if (!recipe) return;
+
+		if (recipe.steps && recipe.steps.length > 0) {
+			setSteps(recipe.steps);
+		} else {
+			const fetchStepsFromDB = async () => {
+				try {
+					const data = await apiFetch(`/api/recipes/${recipe.id}/steps`);
+					setSteps(data);
+				} catch (err) {
+					console.error("Error obteniendo pasos desde BDD:", err);
+				}
+			};
+			fetchStepsFromDB();
+		}
+	}, [recipe]);
 
 	const handleDelete = async () => {
 		if (recipe?.id !== undefined) {

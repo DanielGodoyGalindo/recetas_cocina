@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Recipe } from "../Types";
 import { useUser } from "./Contexts.tsx";
 import BackButton from "./BackButton.tsx"
-import { Link } from "react-router-dom";
+import { Link, useNavigate  } from "react-router-dom";
 
 // generate new recipes with the input ingredients of the user
 function GenerateRecipesForm() {
   const [ingredients, setIngredients] = useState("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const { token } = useUser();
+  const navigate = useNavigate();
 
   const handleSearch = async (e: { preventDefault: () => void; }) => {
     if (e) {
@@ -34,6 +35,19 @@ function GenerateRecipesForm() {
     }
   };
 
+  const handleClickAIRecipe = async (recipe: Recipe) => {
+    try {
+      await fetch("http://localhost:5000/api/recipes/save_ai_recipe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify(recipe),
+      });
+      navigate(`/${recipe.id}`);
+    } catch (err) {
+      console.error("Error guardando receta IA:", err);
+    }
+  };
+
   return (
     <div>
       <div id="generate_recipes_info_container">
@@ -48,17 +62,23 @@ function GenerateRecipesForm() {
           value={ingredients}
           onChange={(e) => setIngredients(e.target.value)}
         />
-
-        <button onClick={handleSearch}>
-          Buscar recetas
-        </button>
+        <button onClick={handleSearch}>Buscar recetas</button>
       </form>
       <ul>
         {recipes.length > 0 ? (
           recipes.map((recipe) =>
-            <li key={recipe.id}>
-              <Link to={`/${recipe.id}`}>{recipe.title}</Link>
-            </li>)
+            recipe.id && recipe.id >= 1000 ? (
+              <li key={recipe.id}>
+                <button onClick={() => handleClickAIRecipe(recipe)}>
+                  {recipe.title}
+                </button>
+              </li>
+            ) : (
+              <li key={recipe.id}>
+                <Link to={`/${recipe.id}`}>{recipe.title}</Link>
+              </li>
+            )
+          )
         ) : (
           <p>No hay resultados aún.</p>
         )}
