@@ -688,7 +688,7 @@ def generate_ai_recipe():
     prompt = (
         "Eres un chef experto. Devuelve una lista de 3 recetas en formato JSON. "
         "Cada receta debe tener los campos: id (comenzando desde el número 1000), title, ingredients (lista de strings), "
-        "steps (lista de strings). El JSON debe ser una lista de objetos. No devuelvas nada de texto extra fuera del JSON. "
+        "steps (objeto con los siguientes atributos: position, instruction y duration_min). El JSON debe ser una lista de objetos. No devuelvas nada de texto extra fuera del JSON. "
         "Sugiere recetas que se puedan preparar con estos ingredientes: "
         f"{ingredients}"
     )

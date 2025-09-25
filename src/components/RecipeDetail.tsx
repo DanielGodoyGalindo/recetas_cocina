@@ -204,27 +204,30 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 					)}
 
 					{/* Buttons */}
-					<div className="recipe_buttons">
-						{user && (user.role === "admin" || user.username === recipe.created_by) && (
-							<>
-								<button className="recipe_button" onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>✏️ Editar</button>
-								<button className="recipe_button" onClick={handleDelete}>🗑️ Eliminar</button>
-							</>
-						)}
-						<AddToFavButton />
-					</div>
-
+					{recipe.id && recipe.id < 1000 ?
+						<div className="recipe_buttons">
+							{user && (user.role === "admin" || user.username === recipe.created_by) && (
+								<>
+									<button className="recipe_button" onClick={() => navigate(`/edit_recipe/${recipe.id}`)}>✏️ Editar</button>
+									<button className="recipe_button" onClick={handleDelete}>🗑️ Eliminar</button>
+								</>
+							)}
+							<AddToFavButton />
+						</div>
+						: ""}
 				</div>
-
-				<img src={recipe.imagePath} alt={recipe.title} className="image_sample" />
+				{recipe.id && recipe.id < 1000 ?
+					<img src={recipe.imagePath} alt={recipe.title} className="image_sample" />
+					: ""}
 			</div>
+
 
 			{/* Steps */}
 			<div id="steps_container">
 				<h3 style={{ textAlign: "center" }}>Pasos</h3>
 				<ol>
-					{steps.map((step) => (
-						<li key={step.position}>
+					{steps.map((step, index) => (
+						<li key={index + 1}>
 							{step.instruction} <strong>{"(" + step.duration_min} {" min)"}</strong>
 						</li>
 					))}
@@ -240,58 +243,60 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 			</div>
 
 			{/* Comments */}
-			<div id="comments_container">
-				<h3>Comentarios</h3>
-				{comments.length > 0 ? (
-					comments.map((comment) => (
-						<div className="recipe_comment" key={comment.id}>
-							{editingCommentId === comment.id ? (
-								<>
-									<textarea
-										value={editingText}
-										onChange={(e) => setEditingText(e.target.value)}
-									/>
-									<select
-										value={editingVote}
-										onChange={(e) => setEditingVote(Number(e.target.value))}
+			{recipe.id && recipe.id < 1000 ?
+				<div id="comments_container">
+					<h3>Comentarios</h3>
+					{comments.length > 0 ? (
+						comments.map((comment) => (
+							<div className="recipe_comment" key={comment.id}>
+								{editingCommentId === comment.id ? (
+									<>
+										<textarea
+											value={editingText}
+											onChange={(e) => setEditingText(e.target.value)}
+										/>
+										<select
+											value={editingVote}
+											onChange={(e) => setEditingVote(Number(e.target.value))}
+										>
+											{[1, 2, 3, 4, 5].map((n) => (
+												<option key={n} value={n}>{n}⭐</option>
+											))}
+										</select>
+									</>
+								) : (
+									<p>{comment.text_comment} ({comment.vote}⭐)</p>
+								)}
+								<p id="p_comment"><strong>- {comment.username}</strong></p>
+
+								{comment.username === user?.username && (
+									<button
+										onClick={() => {
+											if (editingCommentId === comment.id) {
+												handleUpdateComment(comment.id);
+											} else {
+												setEditingCommentId(comment.id);
+												setEditingText(comment.text_comment);
+												setEditingVote(comment.vote);
+											}
+										}}
+										id="edit_comment_button"
 									>
-										{[1, 2, 3, 4, 5].map((n) => (
-											<option key={n} value={n}>{n}⭐</option>
-										))}
-									</select>
-								</>
-							) : (
-								<p>{comment.text_comment} ({comment.vote}⭐)</p>
-							)}
-							<p id="p_comment"><strong>- {comment.username}</strong></p>
+										{editingCommentId === comment.id ? "Aceptar" : "Editar"}
+									</button>
+								)}
+								{comment.username === user?.username && (
+									<button onClick={() => handleDeleteComment(comment.id)} id="delete_comment_button">Borrar</button>
+								)}
+							</div>
+						))
+					) : (
+						<p>No hay comentarios aún.</p>
+					)}
+				</div> : ""}
 
-							{comment.username === user?.username && (
-								<button
-									onClick={() => {
-										if (editingCommentId === comment.id) {
-											handleUpdateComment(comment.id);
-										} else {
-											setEditingCommentId(comment.id);
-											setEditingText(comment.text_comment);
-											setEditingVote(comment.vote);
-										}
-									}}
-									id="edit_comment_button"
-								>
-									{editingCommentId === comment.id ? "Aceptar" : "Editar"}
-								</button>
-							)}
-							{comment.username === user?.username && (
-								<button onClick={() => handleDeleteComment(comment.id)} id="delete_comment_button">Borrar</button>
-							)}
-						</div>
-					))
-				) : (
-					<p>No hay comentarios aún.</p>
-				)}
-			</div>
 
-			{(isAdmin || !isCreator) && (
+			{(recipe.id && recipe.id < 1000) && (isAdmin || !isCreator) && (
 				<div id="add_comment_container">
 					<h4>Deja tu comentario</h4>
 					<textarea
@@ -310,7 +315,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 				</div>
 			)}
 
-			{(!isAdmin && isCreator) && <p>No puedes comentar tu propia receta.</p>}
+			{(recipe.id && recipe.id < 1000) && (!isAdmin && isCreator) && <p>No puedes comentar tu propia receta.</p>}
 
 			<BackButton />
 		</div>

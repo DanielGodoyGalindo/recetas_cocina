@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Recipe } from "../Types";
 import { useUser } from "./Contexts.tsx";
 import BackButton from "./BackButton.tsx"
-import { Link, useNavigate  } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // generate new recipes with the input ingredients of the user
 function GenerateRecipesForm() {
@@ -28,13 +28,13 @@ function GenerateRecipesForm() {
         body: JSON.stringify({ ingredients }),
       });
       const aiData = await aiRes.json();
-      console.log(aiData);
       setRecipes([...dbData, ...aiData]);
     } catch (err) {
       console.error("Error buscando recetas:", err);
     }
   };
 
+  // saves recipe in cache
   const handleClickAIRecipe = async (recipe: Recipe) => {
     try {
       await fetch("http://localhost:5000/api/recipes/save_ai_recipe", {
@@ -67,6 +67,7 @@ function GenerateRecipesForm() {
       <ul>
         {recipes.length > 0 ? (
           recipes.map((recipe) =>
+            // ia recipes with id >= 1000
             recipe.id && recipe.id >= 1000 ? (
               <li key={recipe.id}>
                 <button onClick={() => handleClickAIRecipe(recipe)}>
@@ -74,6 +75,7 @@ function GenerateRecipesForm() {
                 </button>
               </li>
             ) : (
+              // db recipes
               <li key={recipe.id}>
                 <Link to={`/${recipe.id}`}>{recipe.title}</Link>
               </li>
