@@ -190,7 +190,7 @@ function RecipeDetail({ onDelete }: RecipeDetailProps) {
 					<p><strong>Descripción:</strong> {recipe.description}</p>
 
 					{/* Ingredients list */}
-					<h3>Ingredientes</h3>
+					<h3 className="centered">Ingredientes</h3>
 					{Object.keys(recipe.ingredients).length > 0 ? (
 						<ul>
 							{Object.entries(recipe.ingredients).map(([name, quantity]) => (
