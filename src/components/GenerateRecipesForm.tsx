@@ -11,24 +11,33 @@ function GenerateRecipesForm() {
   const { token } = useUser();
   const navigate = useNavigate();
 
-  const handleSearch = async (e: { preventDefault: () => void; }) => {
-    if (e) {
-      e.preventDefault();
-    }
+  const handleSearch = async (e: { preventDefault: () => void }) => {
+    if (e) e.preventDefault();
+
     try {
-      const res = await fetch("http://localhost:5000/api/recipes/generate_recipe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ ingredients })
-      });
-      const dbData = await res.json();
-      const aiRes = await fetch("http://localhost:5000/api/recipes/generate_ai_recipe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ ingredients }),
-      });
-      const aiData = await aiRes.json();
+      // Promises in parallel
+      const [dbRes, aiRes] = await Promise.all([
+        fetch("http://localhost:5000/api/recipes/generate_recipe", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ingredients }),
+        }),
+        fetch("http://localhost:5000/api/recipes/generate_ai_recipe", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ ingredients }),
+        }),
+      ]);
+
+      const [dbData, aiData] = await Promise.all([dbRes.json(), aiRes.json()]);
       setRecipes([...dbData, ...aiData]);
+      
     } catch (err) {
       console.error("Error buscando recetas:", err);
     }
