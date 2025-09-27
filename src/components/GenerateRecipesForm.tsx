@@ -7,12 +7,15 @@ import { Link, useNavigate } from "react-router-dom";
 // generate new recipes with the input ingredients of the user
 function GenerateRecipesForm() {
   const [ingredients, setIngredients] = useState("");
+  const [loading, setLoading] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const { token } = useUser();
   const navigate = useNavigate();
 
   const handleSearch = async (e: { preventDefault: () => void }) => {
     if (e) e.preventDefault();
+
+    setLoading(true);
 
     try {
       // Promises in parallel
@@ -37,9 +40,11 @@ function GenerateRecipesForm() {
 
       const [dbData, aiData] = await Promise.all([dbRes.json(), aiRes.json()]);
       setRecipes([...dbData, ...aiData]);
-      
+
     } catch (err) {
       console.error("Error buscando recetas:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,11 +64,6 @@ function GenerateRecipesForm() {
 
   return (
     <div>
-      <div id="generate_recipes_info_container">
-        <span>Escribe aquí los ingredientes que tengas por casa (separados por una coma) y haz clic en el botón de buscar.</span><br />
-        <span>Aparecerán todas las recetas que tenemos guardadas para que sepas cuales puedes preparar 😊 </span><br />
-        <span>También aparecerán recetas recomendadas por nuestro asistente 🤖 </span>
-      </div>
       <form id="generate_recipes_input_container">
         <input
           type="text"
@@ -73,27 +73,30 @@ function GenerateRecipesForm() {
         />
         <button onClick={handleSearch}>Buscar recetas</button>
       </form>
-      <ul>
-        {recipes.length > 0 ? (
-          recipes.map((recipe) =>
-            // ia recipes with id >= 1000
-            recipe.id && recipe.id >= 1000 ? (
-              <li key={recipe.id}>
-                <button onClick={() => handleClickAIRecipe(recipe)}>
-                  {recipe.title}
-                </button>
-              </li>
-            ) : (
-              // db recipes
-              <li key={recipe.id}>
-                <Link to={`/${recipe.id}`}>{recipe.title}</Link>
-              </li>
+
+      {loading && <p>Cargando recetas... 🔄</p>}
+
+      {!loading && (
+        <ul>
+          {recipes.length > 0 ? (
+            recipes.map((recipe) =>
+              recipe.id && recipe.id >= 1000 ? (
+                <li key={recipe.id}>
+                  <button onClick={() => handleClickAIRecipe(recipe)}>
+                    {recipe.title}
+                  </button>
+                </li>
+              ) : (
+                <li key={recipe.id}>
+                  <Link to={`/${recipe.id}`}>{recipe.title}</Link>
+                </li>
+              )
             )
-          )
-        ) : (
-          <p>No hay resultados aún.</p>
-        )}
-      </ul>
+          ) : (
+            <p>No hay resultados aún.</p>
+          )}
+        </ul>
+      )}
       <div className="centered">
         <BackButton />
       </div>
@@ -102,3 +105,5 @@ function GenerateRecipesForm() {
 }
 
 export default GenerateRecipesForm;
+
+
