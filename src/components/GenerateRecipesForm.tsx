@@ -74,7 +74,7 @@ function GenerateRecipesForm() {
         <button onClick={handleSearch}>Buscar recetas</button>
       </form>
 
-      {loading && <p>Cargando recetas... 🔄</p>}
+      {loading && <p id="loading_recipes_message">⏳ Cargando recetas</p>}
 
       {!loading && (
         <ul>
