@@ -422,6 +422,9 @@ https://github.com/DanielGodoyGalindo */
   display: flex;
   justify-content: center;
   gap: 0.5rem;
+  input {
+    width: 400px;
+  }
 }
 
 .centered {
@@ -433,6 +436,10 @@ https://github.com/DanielGodoyGalindo */
   position: fixed;
   top: 90%;
   left: 2.5%;
+  background-color: white;
+  border-radius: 10px;
+  padding: 0.5rem;
+  border: 1px solid #3b82f6;
 
   a {
     text-decoration: none;
@@ -450,12 +457,16 @@ https://github.com/DanielGodoyGalindo */
   color: #fff;
   font-weight: bold;
   animation: glow 1s infinite alternate;
+  padding: 0.5rem;
+  padding-top: 1rem;
+  font-size: larger;
 }
 
 @keyframes glow {
   0% {
     text-shadow: 0 0 10px black;
   }
+
   100% {
     text-shadow: 0 0 20px black, 0 0 30px black, 0 0 40px black;
   }
@@ -467,9 +478,31 @@ https://github.com/DanielGodoyGalindo */
 }
 
 @keyframes dots {
-  0%   { content: ""; }
-  25%  { content: "."; }
-  50%  { content: ".."; }
-  75% { content: "..."; }
-  100% { content: "..."; }
+  0% {
+    content: "";
+  }
+
+  25% {
+    content: ".";
+  }
+
+  50% {
+    content: "..";
+  }
+
+  75% {
+    content: "...";
+  }
+
+  100% {
+    content: "...";
+  }
+}
+
+#generated_recipe_link {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

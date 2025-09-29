@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Recipe } from "../Types";
-import { useUser } from "./Contexts.tsx";
+import { useUser, useNotification } from "./Contexts.tsx";
 import BackButton from "./BackButton.tsx"
 import { Link, useNavigate } from "react-router-dom";
 
@@ -11,6 +11,7 @@ function GenerateRecipesForm() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const { token } = useUser();
   const navigate = useNavigate();
+  const { alert } = useNotification();
 
   const handleSearch = async (e: { preventDefault: () => void }) => {
     if (e) e.preventDefault();
@@ -39,7 +40,11 @@ function GenerateRecipesForm() {
       ]);
 
       const [dbData, aiData] = await Promise.all([dbRes.json(), aiRes.json()]);
+      if (aiData.error) {
+        alert(aiData.error, "error");
+      }
       setRecipes([...dbData, ...aiData]);
+
 
     } catch (err) {
       console.error("Error buscando recetas:", err);
@@ -82,7 +87,7 @@ function GenerateRecipesForm() {
             recipes.map((recipe) =>
               recipe.id && recipe.id >= 1000 ? (
                 <li key={recipe.id}>
-                  <button onClick={() => handleClickAIRecipe(recipe)}>
+                  <button onClick={() => handleClickAIRecipe(recipe)} id="generated_recipe_link">
                     {recipe.title}
                   </button>
                 </li>
