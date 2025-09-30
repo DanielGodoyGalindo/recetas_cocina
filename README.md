@@ -69,5 +69,4 @@ https://mui.com/material-ui/react-pagination/
 
 ### ToDo
 * Que el usuario indique unos ingredientes y la app le indique que recetas podría hacer con esos ingredientes (in progress)
-* Mostrar mensaje de espera mientras se genera la salida.
-* Mostrar un mensaje de error cuando no se encuentre una receta. (id mayor que las de la bdd)
+* Agregar access_token y refresh_token para comtrolar el login de los usuarios.

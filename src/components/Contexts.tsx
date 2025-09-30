@@ -28,7 +28,7 @@ type NotificationContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 export const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-// Provider to iunclude contexts
+// Provider to include contexts
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   // User state
   const [token, setToken] = useState(localStorage.getItem("token"));
