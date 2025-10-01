@@ -13,7 +13,7 @@ import WelcomeMessage from './components/WelcomeMessage.tsx';
 import GenerateRecipesForm from './components/GenerateRecipesForm.tsx';
 
 function App() {
-  const { token, user, login, logout } = useUser();
+  const { token, refreshToken, user, login, logout } = useUser();
   const { handleSaveRecipe, handleEditRecipe, handleDeleteRecipe } = useRecipes(token ?? "", logout);
 
   return (
@@ -21,13 +21,20 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={token ? [<WelcomeMessage key="welcome" />, <Recipes key="recipes" />] : <Navigate to="/login" />} />
-          <Route path="/login" element={<Login onLogin={(token, user) => { login(token, user); }} />} />
+          <Route path="/login" element={<Login
+            onLogin={(token, user) => {
+              if (!token || !refreshToken) {
+                throw new Error("No hay tokens disponibles");
+              }
+              login(token, refreshToken, user);
+            }}
+          />} />
           <Route path="/:id" element={<RecipeDetail token={token} user={user} onDelete={handleDeleteRecipe} />} />
-          <Route path="/new_recipe" element={<RecipeForm newRecipe={true} user={user} onSave={handleSaveRecipe}/>} />
+          <Route path="/new_recipe" element={<RecipeForm newRecipe={true} user={user} onSave={handleSaveRecipe} />} />
           <Route path="/edit_recipe/:id" element={<EditRecipeWrapper user={user} token={token} onSave={handleEditRecipe} />} />
           <Route path="/create-user" element={<CreateUserForm />} />
           <Route path="/generate_recipe" element={<GenerateRecipesForm />} />
-          
+
         </Route>
       </Routes>
     </Router>

@@ -2,6 +2,7 @@ from flask_cors import CORS
 from db import get_db_connection
 from flask_jwt_extended import (
     create_access_token,
+    create_refresh_token,
     jwt_required,
     get_jwt_identity,
 )
@@ -461,6 +462,7 @@ def register():
     return jsonify({"msg": "Usuario registrado correctamente!"}), 201
 
 
+# creates access and refresh tokens to use with flask_jwt_extended
 @recipes_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -489,9 +491,17 @@ def login():
                 "role": user["role"],
             }
         )
+        refresh_token = create_refresh_token(
+            identity={
+                "id": user["id"],
+                "username": user["username"],
+                "role": user["role"],
+            }
+        )
         return jsonify(
             {
                 "access_token": token,
+                "refresh_token": refresh_token,
                 "user": {
                     "id": user["id"],
                     "username": user["username"],
@@ -501,6 +511,14 @@ def login():
         ), 200
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
+
+# refresh access token
+@recipes_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    identity = get_jwt_identity()
+    new_access_token = create_access_token(identity=identity)
+    return jsonify({"access_token": new_access_token}), 200
 
 
 @recipes_bp.route("/protected", methods=["GET"])
@@ -591,7 +609,6 @@ def add_favorite():
 @jwt_required()
 def remove_favorite(recipe_id):
     user = get_jwt_identity()
-
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute(
@@ -697,7 +714,9 @@ def generate_ai_recipe():
         response = model.generate_content(prompt)
         content = response.text
         if content == "invalid":
-            return jsonify({"error": "Los datos indicados no corresponden a ingredientes."}), 500
+            return jsonify(
+                {"error": "Los datos indicados no corresponden a ingredientes."}
+            ), 500
         if content.startswith("```json"):
             content = content[7:-3].strip()
         try:

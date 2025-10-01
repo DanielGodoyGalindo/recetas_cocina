@@ -69,4 +69,3 @@ https://mui.com/material-ui/react-pagination/
 
 ### ToDo
 * Que el usuario indique unos ingredientes y la app le indique que recetas podría hacer con esos ingredientes (in progress)
-* Agregar access_token y refresh_token para comtrolar el login de los usuarios.

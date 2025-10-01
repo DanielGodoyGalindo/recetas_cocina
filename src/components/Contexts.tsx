@@ -9,7 +9,8 @@ type User = {
 type UserContextType = {
   user: User;
   token: string | null;
-  login: (token: string, user: User) => void;
+  refreshToken: string | null;
+  login: (token: string , refreshToken: string , user: User) => void;
   logout: () => void;
 };
 
@@ -32,6 +33,7 @@ export const NotificationContext = createContext<NotificationContextType | undef
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   // User state
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [refreshToken, setRefreshToken] = useState(localStorage.getItem("refresh_token"));
   const [user, setUser] = useState<User>(() => {
     const saved = localStorage.getItem("user");
     try {
@@ -41,10 +43,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-  const login = (newToken: string, newUser: User) => {
+  const login = (newToken: string, refreshToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
+    setRefreshToken(refreshToken);
     localStorage.setItem("token", newToken);
+    localStorage.setItem("refresh_token", refreshToken);
     localStorage.setItem("user", JSON.stringify(newUser));
   };
 
@@ -64,7 +68,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, token, login, logout }}>
+    <UserContext.Provider value={{ user, token, refreshToken, login, logout }}>
       <NotificationContext.Provider value={{ notification, alert }}>
         {children}
         {notification && (

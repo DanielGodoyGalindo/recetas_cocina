@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser, useNotification } from "./Contexts.tsx";
-import {User} from "../Types.ts"
+import { User } from "../Types.ts"
 
 type LoginProps = {
     onLogin: (token: string, user: User) => void;
@@ -10,7 +10,7 @@ type LoginProps = {
 // Personal project developed by Daniel Godoy
 // https://github.com/DanielGodoyGalindo
 
-function Login(onLogin:LoginProps) {
+function Login(onLogin: LoginProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -40,7 +40,7 @@ function Login(onLogin:LoginProps) {
 
             if (res.ok) {
                 const loggedUser = { username, role: data.user.role };
-                login(data.access_token, loggedUser);
+                login(data.access_token, data.refresh_token, loggedUser);
                 navigate("/");
             } else {
                 alert(data.msg || "Error al iniciar sesión", "error");
