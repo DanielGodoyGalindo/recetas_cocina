@@ -69,3 +69,4 @@ https://mui.com/material-ui/react-pagination/
 
 ### ToDo
 * Que el usuario indique unos ingredientes y la app le indique que recetas podría hacer con esos ingredientes (in progress)
+* Hacer una funcion que cuando se haga un fetch compruebe si se recibe un 401 y se haga logout al usuario y se le redirija a main (como en GenerateRecipesForm.tsx)

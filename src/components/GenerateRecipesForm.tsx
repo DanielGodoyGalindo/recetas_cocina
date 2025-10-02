@@ -39,6 +39,13 @@ function GenerateRecipesForm() {
         }),
       ]);
 
+      // make a function to use in all fetchs
+      if (dbRes.status === 401 || aiRes.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/";
+        return;
+      }
+
       const [dbData, aiData] = await Promise.all([dbRes.json(), aiRes.json()]);
       if (aiData.error) {
         alert(aiData.error, "error");
@@ -69,6 +76,7 @@ function GenerateRecipesForm() {
 
   return (
     <div>
+      <p style={{ fontSize: "20px", marginBottom: "50px" }}>Indica los ingredientes que tienes en la nevera y te daremos ideas para hacer recetas 😉</p>
       <form id="generate_recipes_input_container">
         <input
           type="text"
