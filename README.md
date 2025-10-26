@@ -1,4 +1,4 @@
-# Proyecto FullStack para la gestión de recetas de cocina 🥤🥗🍔🍗🍟🥓
+# Proyecto FullStack para la gestión de recetas de cocina 🥗🍔🍗🍟🥓
 
 Aplicación web desarrollada con React + Flask para la gestión de recetas de cocina. El usuario debe autenticarse para poder acceder a la app. Si no tiene usuario creado, debe registrarse. Al acceder se redirige a la página principal donde se listan todas las recetas creadas por todos los usuarios.
 
@@ -6,11 +6,11 @@ Aplicación web desarrollada con React + Flask para la gestión de recetas de co
 <!-- https://github.com/DanielGodoyGalindo -->
 
 ## Instalación
-git clone https://github.com/DanielGodoyGalindo/recetas_cocina.git
-pip install -r backend/requirements.txt
-npm install
-python backend/app.py
-npm start
+1.  git clone https://github.com/DanielGodoyGalindo/recetas_cocina.git
+2. pip install -r backend/requirements.txt
+3. npm install
+4. python backend/app.py
+5. npm start
 
 ## Herramientas y lenguajes utilizados:
 <p style="display:flex; justify-content:center;gap:2rem;">
@@ -31,7 +31,7 @@ npm start
 > Utilizado para mantener una variable de estado dentro de cada componente, como por ejemplo para obtener la receta a la que el usuario accede.
 
 > #### *useEffect*
-> Para mantener el comopnente sincronizado con elementos externos como por ejemplo formularios que obtienen datos cuando se edita una receta.
+> Para mantener el componente sincronizado con elementos externos como por ejemplo formularios que obtienen datos cuando se edita una receta.
 
 > #### *useContext*
 > Se utiliza para la autenticación del usuario, guardando el token durente la sesión y para manejar el login y logout del usuario. De esta manera se evita tener que pasar como props el usuario y su token a traves de los componentes padres e hijos. Se crea un provider para poder usar el contexto en toda la app. También se incluye un contexto para enviar alertas al usuario indicandole información acerca de los eventos que se van ejecutando (receta creada, editada o eliminada con exito / error, etc...)
