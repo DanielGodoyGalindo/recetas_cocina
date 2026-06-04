@@ -23,12 +23,12 @@ recipes_bp = Blueprint("recipes", __name__)
 CORS(recipes_bp)
 
 # https://ai.google.dev/gemini-api/docs/quickstart?hl=es-419
-load_dotenv(".env.development.local")
+load_dotenv("backend/.env.development.local")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
     raise ValueError("Google API Key not found.")
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 
 ### Routing ###
@@ -484,13 +484,7 @@ def login():
         db_password = db_password.encode("utf-8")
 
     if bcrypt.checkpw(password.encode("utf-8"), db_password):
-        token = create_access_token(
-            identity={
-                "id": user["id"],
-                "username": user["username"],
-                "role": user["role"],
-            }
-        )
+        token = create_access_token(identity=str(user["id"]))
         refresh_token = create_refresh_token(
             identity={
                 "id": user["id"],
@@ -511,6 +505,7 @@ def login():
         ), 200
     else:
         return jsonify({"msg": "Credenciales inválidas"}), 401
+
 
 # refresh access token
 @recipes_bp.route("/refresh", methods=["POST"])
